@@ -12,7 +12,6 @@
             padding: 20px;
         }
 
-        /* --- 画像のサイズ設定 --- */
         :root {
             --banner-width: 50%; 
         }
@@ -28,7 +27,6 @@
             margin: 20px auto; 
         }
 
-        /* --- ランダム画像用のスタイル --- */
         .random-banner-container {
             text-align: center;
             margin: 10px auto 25px;
@@ -47,19 +45,14 @@
             transition: opacity 0.3s ease-in;
         }
 
-        h1 {
-            color: #333;
-            font-size: 2.2em; 
-            margin-bottom: 15px;
-        }
-        
+        h1 { color: #333; font-size: 2.2em; margin-bottom: 15px; }
         #question { font-size: 1.6em; margin-bottom: 25px; color: #333; min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: left; line-height: 1.4; }
         #choices { list-style: none; padding: 0; }
         #choices li { font-size: 1.3em; background-color: #e9e9e9; padding: 12px 10px; margin: 12px 0; border-radius: 8px; cursor: pointer; transition: 0.3s; text-align: left; border: 1px solid #ccc; }
         #choices li:hover { background-color: #dcdcdc; }
         #choices li.correct { background-color: #a8e6a8; border-color: #7fbf7f; }
         #choices li.incorrect { background-color: #ff9999; border-color: #e68a8a; }
-        #next-btn, #restart-btn { padding: 12px 25px; border: none; border-radius: 8px; background-color: #007bff; color: white; font-size: 1.1em; cursor: pointer; margin-top: 20px; }
+        #next-btn { padding: 12px 25px; border: none; border-radius: 8px; background-color: #007bff; color: white; font-size: 1.1em; cursor: pointer; margin-top: 20px; }
         #result { font-size: 1.4em; font-weight: bold; margin-top: 20px; }
         .hidden { display: none; }
 
@@ -76,7 +69,7 @@
 
 <div class="quiz-container">
     <h1>面白クイズ100</h1> 
-    <p style="text-align:center">会員サイト無料画像からアップ</p>
+    <p style="text-align:center">会員サイト無料画像3000枚からアップ</p>
     
     <div class="random-banner-container">
         <img id="randomBanner" src="" alt="クイズイメージ">
@@ -91,18 +84,20 @@
 </div>
 
 <script>
-    // --- クイズデータ ---
+    // クイズデータ
     const quizzes = [
         { question: "1年中、ほぼ毎日働いているのに、一度も文句を言わないものは何？", answer: "カレンダー", choices: ["時計", "カレンダー", "冷蔵庫", "電柱"] },
-        { question: "叩けば叩くほど、大きな音で応えてくれるものは何？", answer: "たいこ", choices: ["ピアノ", "たいこ", "笛", "机"] },
+        { question: "叩けば叩くほど、頭が良くなる（大きな音が出る）ものは何？", answer: "たいこ", choices: ["ピアノ", "たいこ", "笛", "机"] },
         { question: "買えば買うほど短くなるものは何？", answer: "ろうそく", choices: ["鉛筆", "消しゴム", "ろうそく", "紐"] },
-        { question: "どこにでも行くけれど、自分では一歩も動けないものは何？", answer: "切手", choices: ["靴", "切手", "手紙", "車輪"] },
-        { question: "食べれば食べるほどお腹がすくと言われる野菜は何？", answer: "もやし", choices: ["キュウリ", "レタス", "もやし", "セロリ"] }
+        { question: "どこにでも行くけれど、どこにも行けないものは何？", answer: "切手", choices: ["靴", "切手", "手紙", "車輪"] },
+        { question: "食べれば食べるほどお腹がすく（と言われる）ものは何？", answer: "もやし", choices: ["キュウリ", "レタス", "もやし", "セロリ"] }
     ];
 
-    // ★ランダム画像リストを5枚に限定
-    const randomImages = [
-        "056.jpg", "037.jpg", "038.jpg", "650.jpg", "651.jpg"
+    // 画像リスト（一部抜粋していますが、ここにお持ちの全リストを入れてください）
+    const images = [
+        "0-38.jpg", "0-39.jpg", "0-49.jpg", "0-50.jpg", "0-55.jpg", "037.jpg", "038.jpg", "039.jpg", 
+        "650.jpg", "651.jpg", "652.jpg", "653.jpg", "654.jpg", "655.jpg" 
+        /* ... 他の画像ファイル名もここに追加 ... */
     ];
     const imgBaseUrl = "https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/";
 
@@ -123,12 +118,13 @@
         nextBtn.classList.add('hidden');
         choicesEl.innerHTML = '';
 
-        // ★画像をランダムに選んで表示
-        randomBanner.style.opacity = 0;
-        const randomImgName = randomImages[Math.floor(Math.random() * randomImages.length)];
+        // ★画像をランダムに選んで切り替える
+        randomBanner.style.opacity = 0; // 一旦透明にする（フェード用）
+        const randomImgName = images[Math.floor(Math.random() * images.length)];
         randomBanner.src = imgBaseUrl + randomImgName;
         randomBanner.onload = () => { randomBanner.style.opacity = 1; };
 
+        // 選択肢を生成
         quiz.choices.forEach(choice => {
             const li = document.createElement('li');
             li.textContent = choice;
@@ -158,7 +154,7 @@
     nextBtn.onclick = () => {
         currentIdx++;
         if (currentIdx < quizzes.length) {
-            loadQuiz();
+            loadQuiz(); // 次の問題へ行くと、画像も再度ランダムに選ばれます
         } else {
             questionEl.textContent = "全問終了です！お疲れ様でした。";
             choicesEl.innerHTML = '';
