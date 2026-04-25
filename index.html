@@ -5,35 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>面白クイズ100</title>
 <style>
+        /* --- 1. ページ全体の設定（最大幅800pxで中央寄せ） --- */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f0f0;
-            margin: 0;
+            margin: 0 auto;       /* 左右をオートにして中央寄せ */
             padding: 20px;
-            /* --- 追加: PCで中央寄せにする設定 --- */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            max-width: 800px;     /* ★ページ全体の横幅を800pxに制限 */
+            box-sizing: border-box;
         }
 
-        /* --- 画像のサイズ設定（PC・スマホ共に40%） --- */
-        :root {
-            --banner-width: 50%; 
-        }
-
+        /* --- 2. クイズの枠（bodyに合わせて幅いっぱいに広げる） --- */
         .quiz-container {
             background-color: #fff;
             padding: 30px 50px;
             border-radius: 10px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            width: 100%;           /* コンテナ自体は幅いっぱいに */
-            max-width: 800px;      /* ★ここを800pxに変更しました */
+            width: 100%;          /* 親であるbodyの800pxに対して100% */
             text-align: center;
-            margin: 20px auto; 
-            box-sizing: border-box; /* パディングを含めた幅計算 */
+            margin: 20px 0;       /* 上下の余白 */
+            box-sizing: border-box;
         }
 
-        /* --- ランダム画像用のスタイル --- */
+        /* --- 画像のサイズ設定 --- */
+        :root {
+            --banner-width: 50%; 
+        }
+
         .random-banner-container {
             text-align: center;
             margin: 10px auto 25px;
@@ -68,10 +66,13 @@
         #result { font-size: 1.4em; font-weight: bold; margin-top: 20px; }
         .hidden { display: none; }
 
-        @media (max-width: 768px) { 
-            body { padding: 10px; }
+        /* --- 3. スマホサイズ（画面幅が800px以下の時） --- */
+        @media (max-width: 800px) { 
+            body { 
+                padding: 10px;
+                width: 100%;      /* 800px以下なら画面いっぱいに使う */
+            }
             .quiz-container { 
-                width: 95%;      /* スマホでは画面に合わせる */
                 padding: 20px 15px; 
             }
             #question { font-size: 1.4em; }
