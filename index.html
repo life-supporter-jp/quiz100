@@ -37,16 +37,19 @@
         .random-banner-container {
             text-align: center;
             margin: 15px auto;
-            width: 60%; /* クイズに合わせて少し調整 */
-            min-height: 100px;
+            width: 80%; /* 画像を見やすく調整 */
+            min-height: 150px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
         #randomBanner {
-            width: 100%;
+            max-width: 100%;
             height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             display: block;
-            margin: 0 auto;
             opacity: 0;
             transition: opacity 0.5s ease-in;
         }
@@ -70,32 +73,41 @@
             font-weight: bold;
             margin: 20px 0; 
             color: #2d3748; 
-            min-height: 80px; 
+            min-height: 60px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             text-align: center; 
             line-height: 1.4;
-            padding: 0 10px;
         }
 
-        /* --- 選択肢 --- */
-        #choices { list-style: none; padding: 0; margin: 0 auto; max-width: 500px; }
+        /* --- 選択肢（4択対応） --- */
+        #choices { 
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2列に並べる */
+            gap: 10px;
+            list-style: none; 
+            padding: 0; 
+            margin: 0 auto; 
+            max-width: 600px; 
+        }
         #choices li { 
-            font-size: 1.2em; 
+            font-size: 1.1em; 
             background-color: #f8fafc; 
-            padding: 15px; 
-            margin: 10px 0; 
+            padding: 15px 10px; 
             border-radius: 10px; 
             cursor: pointer; 
             transition: 0.2s; 
             text-align: center; 
             border: 2px solid #e2e8f0; 
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         #choices li:hover { background-color: #edf2f7; border-color: #cbd5e0; }
-        #choices li.correct { background-color: #c6f6d5; border-color: #48bb78; color: #22543d; }
-        #choices li.incorrect { background-color: #fed7d7; border-color: #f56565; color: #742a2a; }
+        #choices li.correct { background-color: #c6f6d5 !important; border-color: #48bb78 !important; color: #22543d; }
+        #choices li.incorrect { background-color: #fed7d7 !important; border-color: #f56565 !important; color: #742a2a; }
 
         /* --- ボタン --- */
         .btn {
@@ -114,17 +126,15 @@
         .btn:hover { background-color: #357abd; }
         .hidden { display: none !important; }
 
-        #result { font-size: 1.4em; font-weight: bold; margin-top: 20px; min-height: 1.5em; }
+        #result { font-size: 1.3em; font-weight: bold; margin-top: 15px; min-height: 1.5em; }
 
         /* --- フッターエリア --- */
-        .footer-msg { font-size: 18px; font-weight: bold; margin-top: 30px; border-top: 1px solid #eee; pt: 20px; }
+        .footer-msg { font-size: 18px; font-weight: bold; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .qr-area { text-align: center; margin-top: 40px; padding-bottom: 50px; }
         
         @media (max-width: 600px) {
-            .wrap { padding: 15px; }
-            .random-banner-container { width: 90%; }
-            #question { font-size: 1.2em; }
-            .main-title { font-size: 24px; }
+            #choices { grid-template-columns: 1fr; } /* スマホでは1列 */
+            .random-banner-container { width: 95%; }
         }
     </style>
 </head>
@@ -132,23 +142,23 @@
 
 <div class="wrap">
     <div class="banner-container">
-        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg">
+        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg" alt="Header">
     </div>
 
     <div class="quiz-card">
         <div class="main-title">面白クイズ100</div>
-        <div class="sub-text">簡単ななぞなぞで頭の体操！スッキリしてください。</div>
+        <div class="sub-text">会員サイト無料画像3000枚からアップ</div>
 
         <div class="random-banner-container">
-            <img id="randomBanner" src="" alt="未来へのヒント">
+            <img id="randomBanner" src="" alt="クイズイメージ">
         </div>
 
         <div id="quiz-content">
-            <div id="question">読み込み中...</div>
+            <div id="question">問題を読み込み中...</div>
             <ul id="choices"></ul>
             <div id="result"></div>
             <button id="next-btn" class="btn hidden">次の問題へ</button>
-            <button id="restart-btn" class="btn hidden">もう一度挑戦</button>
+            <button id="restart-btn" class="btn hidden">もう一度最初から</button>
         </div>
     </div>
 
@@ -157,16 +167,14 @@
     </div>
 
     <div class="banner-container" style="margin-top:20px;">
-        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012085.jpg">
+        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012085.jpg" alt="Footer Banner">
     </div>
 
     <div class="qr-area">
         <div style="font-size: 22px; font-weight: bold; margin-bottom: 20px;">以下より体験版をご確認ください。</div>
-        
         <div style="display: flex; justify-content: center; margin-bottom: 15px;">
             <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012100.jpg" alt="体験版QRコード" style="width: 200px; height: auto;">
         </div>
-
         <div style="margin-top: 10px;">
             <a href="https://life-supporter.jp/lp/HRSuykFf" style="color: #0000FF; font-size: 20px; text-decoration: underline; font-weight: bold; word-break: break-all;">
                 https://life-supporter.jp/lp/HRSuykFf
@@ -176,20 +184,24 @@
 </div>
 
 <script>
+    // --- クイズデータ（4つの回答に対応） ---
     const quizzes = [
-        { question: "1年中、ほぼ毎日働いているのに、一度も文句を言わないものは何？", choices: ["カレンダー", "時計", "冷蔵庫"], answer: "カレンダー" },
-        { question: "叩けば叩くほど、大きな音で応えてくれる楽器は何？", choices: ["ピアノ", "たいこ", "笛"], answer: "たいこ" },
-        { question: "買えば買うほど、使えば使うほど短くなるものは何？", choices: ["鉛筆", "ろうそく", "お金"], answer: "ろうそく" },
-        { question: "どこにでも行くけれど、自分では一歩も動けない、封筒の隅にいるのは？", choices: ["切手", "宛名", "のり"], answer: "切手" },
-        { question: "食べれば食べるほどお腹がすくと言われる、ひょろひょろした野菜は？", choices: ["アスパラ", "もやし", "ゴボウ"], answer: "もやし" },
-        { question: "持っているだけで、冬の寒さを和らげてくれるものは？", choices: ["手袋", "カイロ", "マフラー"], answer: "カイロ" },
-        { question: "どんなに大きくても、光が当たると足元に現れる重さゼロのものは？", choices: ["影", "空気", "雲"], answer: "影" },
-        { question: "いつも何かを教えてくれるけれど、声を出さない、紙でできたものは？", choices: ["手紙", "本", "ノート"], answer: "本" }
+        { question: "1年中、ほぼ毎日働いているのに、一度も文句を言わないものは？", choices: ["カレンダー", "時計", "冷蔵庫", "電柱"], answer: "カレンダー" },
+        { question: "叩けば叩くほど、大きな音で応えてくれる楽器は何？", choices: ["ピアノ", "たいこ", "笛", "バイオリン"], answer: "たいこ" },
+        { question: "買えば買うほど、使えば使うほど短くなるものは何？", choices: ["鉛筆", "ろうそく", "お金", "消しゴム"], answer: "ろうそく" },
+        { question: "どこにでも行くけれど、自分では一歩も動けない、封筒の隅にいるのは？", choices: ["切手", "宛名", "のり", "郵便屋"], answer: "切手" },
+        { question: "食べれば食べるほどお腹がすくと言われる、ひょろひょろした野菜は？", choices: ["アスパラ", "もやし", "ゴボウ", "ネギ"], answer: "もやし" },
+        { question: "持っているだけで、冬の寒さを和らげてくれるものは？", choices: ["手袋", "カイロ", "マフラー", "お湯"], answer: "カイロ" },
+        { question: "どんなに大きくても、光が当たると足元に現れる重さゼロのものは？", choices: ["影", "空気", "雲", "風"], answer: "影" },
+        { question: "いつも何かを教えてくれるけれど、声を出さない、紙でできたものは？", choices: ["手紙", "本", "ノート", "新聞"], answer: "本" }
     ];
 
+    // --- ランダム画像リスト ---
     const images = [
-        "0-38.jpg", "0-39.jpg", "0-49.jpg", "0-50.jpg", "0-55.jpg", "037.jpg", "038.jpg", "650.jpg", "651.jpg"
+        "0-38.jpg", "0-39.jpg", "0-49.jpg", "0-50.jpg", "0-55.jpg", 
+        "056.jpg", "037.jpg", "038.jpg", "650.jpg", "651.jpg", "652.jpg"
     ];
+    // ベースURLが正しいかご確認ください（末尾の/の有無など）
     const imgBaseUrl = "https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/";
 
     let currentIdx = 0;
@@ -209,11 +221,17 @@
         nextBtn.classList.add('hidden');
         choicesEl.innerHTML = '';
 
-        // 画像のランダム表示
-        const randomImg = images[Math.floor(Math.random() * images.length)];
-        bannerImg.src = imgBaseUrl + randomImg;
+        // 画像のランダム表示ロジック修正
+        bannerImg.style.opacity = 0; // 一旦消す
+        const randomImgName = images[Math.floor(Math.random() * images.length)];
+        bannerImg.src = imgBaseUrl + randomImgName;
+        
+        // 画像読み込み完了後にフェードイン
         bannerImg.onload = () => { bannerImg.style.opacity = 1; };
+        // 万が一画像がない場合の処理
+        bannerImg.onerror = () => { bannerImg.src = "https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg"; bannerImg.style.opacity = 1; };
 
+        // 選択肢の生成
         quiz.choices.forEach(choice => {
             const li = document.createElement('li');
             li.textContent = choice;
@@ -233,6 +251,11 @@
         } else {
             element.classList.add('incorrect');
             resultEl.innerHTML = `<span style="color:#f56565">残念！ 正解は「${correct}」でした。</span>`;
+            
+            // 正解の選択肢も強調表示
+            Array.from(choicesEl.children).forEach(li => {
+                if(li.textContent === correct) li.classList.add('correct');
+            });
         }
         nextBtn.classList.remove('hidden');
     }
@@ -255,7 +278,7 @@
         loadQuiz();
     };
 
-    // 初期化
+    // 起動
     loadQuiz();
 </script>
 </body>
