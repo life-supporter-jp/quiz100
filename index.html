@@ -5,33 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>面白クイズ100</title>
 <style>
-        /* --- 1. ページ全体の設定（最大幅800pxで中央寄せ） --- */
+        /* --- 1. ページ全体：PCでは横幅800pxに固定し、中央に寄せる --- */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f0f0;
-            margin: 0 auto;       /* 左右をオートにして中央寄せ */
+            margin: 0 auto;       /* 左右中央寄せ */
             padding: 20px;
-            max-width: 800px;     /* ★ページ全体の横幅を800pxに制限 */
+            max-width: 800px;     /* 全体の幅を800pxに制限 */
             box-sizing: border-box;
+            overflow-x: hidden;   /* はみ出しによる横揺れを防止 */
         }
 
-        /* --- 2. クイズの枠（bodyに合わせて幅いっぱいに広げる） --- */
+        /* --- 2. 画像の強制リサイズ：800pxからはみ出すのを防ぐ --- */
+        img {
+            max-width: 100% !important; /* 親要素の幅（800px）を超えない */
+            height: auto !important;    /* 比率を維持 */
+            display: block;             /* 前後の文字と重ならない */
+            margin: 0 auto 20px auto;   /* 画像単体でも中央寄せ＆下に余白 */
+        }
+
+        /* --- 3. クイズコンテナの設定 --- */
+        :root {
+            --banner-width: 50%; /* クイズ内画像のサイズ（800pxの半分） */
+        }
+
         .quiz-container {
             background-color: #fff;
             padding: 30px 50px;
             border-radius: 10px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            width: 100%;          /* 親であるbodyの800pxに対して100% */
+            width: 100%;          /* 800pxの幅いっぱいに広げる */
             text-align: center;
-            margin: 20px 0;       /* 上下の余白 */
+            margin: 20px auto; 
             box-sizing: border-box;
         }
 
-        /* --- 画像のサイズ設定 --- */
-        :root {
-            --banner-width: 50%; 
-        }
-
+        /* --- 4. クイズ内ランダム画像用のスタイル --- */
         .random-banner-container {
             text-align: center;
             margin: 10px auto 25px;
@@ -50,32 +59,77 @@
             transition: opacity 0.3s ease-in;
         }
 
+        /* --- 5. テキスト・要素のスタイル --- */
         h1 {
             color: #333;
             font-size: 2.2em; 
             margin-bottom: 15px;
         }
         
-        #question { font-size: 1.6em; margin-bottom: 25px; color: #333; min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: left; line-height: 1.4; }
-        #choices { list-style: none; padding: 0; }
-        #choices li { font-size: 1.3em; background-color: #e9e9e9; padding: 12px 10px; margin: 12px 0; border-radius: 8px; cursor: pointer; transition: 0.3s; text-align: left; border: 1px solid #ccc; }
+        #question { 
+            font-size: 1.6em; 
+            margin-bottom: 25px; 
+            color: #333; 
+            min-height: 60px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: left; 
+            line-height: 1.4; 
+        }
+
+        #choices { 
+            list-style: none; 
+            padding: 0; 
+        }
+
+        #choices li { 
+            font-size: 1.3em; 
+            background-color: #e9e9e9; 
+            padding: 12px 10px; 
+            margin: 12px 0; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            text-align: left; 
+            border: 1px solid #ccc; 
+        }
+
         #choices li:hover { background-color: #dcdcdc; }
         #choices li.correct { background-color: #a8e6a8; border-color: #7fbf7f; }
         #choices li.incorrect { background-color: #ff9999; border-color: #e68a8a; }
-        #next-btn, #restart-btn { padding: 12px 25px; border: none; border-radius: 8px; background-color: #007bff; color: white; font-size: 1.1em; cursor: pointer; margin-top: 20px; }
-        #result { font-size: 1.4em; font-weight: bold; margin-top: 20px; }
+
+        #next-btn, #restart-btn { 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 8px; 
+            background-color: #007bff; 
+            color: white; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            margin-top: 20px; 
+        }
+
+        #result { 
+            font-size: 1.4em; 
+            font-weight: bold; 
+            margin-top: 20px; 
+        }
+
         .hidden { display: none; }
 
-        /* --- 3. スマホサイズ（画面幅が800px以下の時） --- */
+        /* --- 6. スマホサイズ（画面幅が800px以下の時）の調整 --- */
         @media (max-width: 800px) { 
             body { 
-                padding: 10px;
-                width: 100%;      /* 800px以下なら画面いっぱいに使う */
+                padding: 10px; 
+                width: 100%;
             }
             .quiz-container { 
+                width: 95%; 
                 padding: 20px 15px; 
             }
             #question { font-size: 1.4em; }
+            h1 { font-size: 1.8em; }
         }
     </style>
 <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg" style="display: block; margin: auto;">
