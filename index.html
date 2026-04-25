@@ -25,7 +25,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1); 
         }
 
-        /* --- ヘッダー・バナー設定 --- */
+        /* --- ヘッダー・バナー設定（固定） --- */
         .banner-container img { 
             max-width: 100%; 
             height: auto; 
@@ -34,10 +34,12 @@
             border-radius: 8px; 
         }
         
+        /* クイズ用のランダム画像エリア */
         .random-banner-container {
             text-align: center;
             margin: 15px auto;
-            width: 80%;
+            width: 90%;
+            max-width: 400px; /* サイズが大きすぎないよう調整 */
             min-height: 150px;
             background-color: #f9f9f9;
             border-radius: 8px;
@@ -51,7 +53,6 @@
             max-width: 100%;
             height: auto;
             display: block;
-            opacity: 0;
             transition: opacity 0.5s ease-in;
         }
 
@@ -82,7 +83,7 @@
             line-height: 1.4;
         }
 
-        /* --- 選択肢（4択対応） --- */
+        /* --- 4択レイアウト --- */
         #choices { 
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -110,7 +111,6 @@
         #choices li.correct { background-color: #c6f6d5 !important; border-color: #48bb78 !important; color: #22543d; }
         #choices li.incorrect { background-color: #fed7d7 !important; border-color: #f56565 !important; color: #742a2a; }
 
-        /* --- ボタン --- */
         .btn {
             display: inline-block;
             padding: 12px 30px;
@@ -124,16 +124,10 @@
             margin-top: 20px;
         }
         .hidden { display: none !important; }
-
         #result { font-size: 1.3em; font-weight: bold; margin-top: 15px; min-height: 1.5em; }
 
-        /* --- フッター --- */
-        .footer-msg { font-size: 18px; font-weight: bold; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
-        .qr-area { text-align: center; margin-top: 40px; padding-bottom: 50px; }
-        
         @media (max-width: 600px) {
             #choices { grid-template-columns: 1fr; }
-            .random-banner-container { width: 95%; }
         }
     </style>
 </head>
@@ -141,12 +135,12 @@
 
 <div class="wrap">
     <div class="banner-container">
-        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg">
+        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg" alt="Title">
     </div>
 
     <div class="quiz-card">
         <div class="main-title">面白クイズ100</div>
-        <div class="sub-text">会員サイト無料画像3000枚からアップ</div>
+        <div class="sub-text">会員サイト無料画像からアップ</div>
 
         <div class="random-banner-container">
             <img id="randomBanner" src="" alt="クイズイメージ">
@@ -161,20 +155,20 @@
         </div>
     </div>
 
-    <div class="footer-msg">
-        今回のアプリは如何だったでしょうか？他にも使えるアプリ、脳トレができるゲームや趣味に俳句、和歌などが利用できるサイトをご案内します。また大事な記録をサーバーに残せるサイトで、何かあった時に情報開示も指定できるサイトです。スマホのID、PWを記録しておくと安心です。
+    <div class="footer-msg" style="font-size: 18px; font-weight: bold; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        今回のアプリは如何だったでしょうか？他にも使えるアプリ、脳トレができるゲームや趣味に俳句、和歌などが利用できるサイトをご案内します。
     </div>
 
     <div class="banner-container" style="margin-top:20px;">
         <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012085.jpg">
     </div>
 
-    <div class="qr-area">
+    <div class="qr-area" style="text-align: center; margin-top: 40px; padding-bottom: 50px;">
         <div style="font-size: 22px; font-weight: bold; margin-bottom: 20px;">以下より体験版をご確認ください。</div>
         <div style="display: flex; justify-content: center; margin-bottom: 15px;">
             <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012100.jpg" style="width: 200px;">
         </div>
-        <div style="margin-top: 10px;">
+        <div>
             <a href="https://life-supporter.jp/lp/HRSuykFf" style="color: #0000FF; font-size: 20px; text-decoration: underline; font-weight: bold;">
                 https://life-supporter.jp/lp/HRSuykFf
             </a>
@@ -194,10 +188,9 @@
         { question: "いつも何かを教えてくれるけれど、声を出さない、紙でできたものは？", choices: ["手紙", "本", "ノート", "新聞"], answer: "本" }
     ];
 
-    // 指定された画像名
-    const images = [
-        "0-38.jpg", "0-39.jpg", "0-49.jpg", "0-50.jpg", "0-55.jpg", 
-        "056.jpg", "037.jpg", "038.jpg", "650.jpg", "651.jpg", "652.jpg"
+    // ★ランダムに表示する画像リストをご指定の内容に変更しました
+    const randomImages = [
+        "056.jpg", "037.jpg", "038.jpg", "650.jpg", "651.jpg"
     ];
     const imgBaseUrl = "https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/";
 
@@ -208,7 +201,7 @@
     const choicesEl = document.getElementById('choices');
     const nextBtn = document.getElementById('next-btn');
     const resultEl = document.getElementById('result');
-    const bannerImg = document.getElementById('randomBanner');
+    const randomBanner = document.getElementById('randomBanner');
 
     function loadQuiz() {
         isAnswered = false;
@@ -218,13 +211,11 @@
         nextBtn.classList.add('hidden');
         choicesEl.innerHTML = '';
 
-        // 画像表示の更新
-        bannerImg.style.opacity = 0;
-        const randomImgName = images[Math.floor(Math.random() * images.length)];
-        bannerImg.src = imgBaseUrl + randomImgName;
-        
-        bannerImg.onload = () => { bannerImg.style.opacity = 1; };
-        bannerImg.onerror = () => { bannerImg.style.display = "none"; }; // 画像がない場合は非表示
+        // ★クイズエリア内の画像をランダムに入れ替え
+        randomBanner.style.opacity = 0;
+        const randomImgName = randomImages[Math.floor(Math.random() * randomImages.length)];
+        randomBanner.src = imgBaseUrl + randomImgName;
+        randomBanner.onload = () => { randomBanner.style.opacity = 1; };
 
         quiz.choices.forEach(choice => {
             const li = document.createElement('li');
