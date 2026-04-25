@@ -1,435 +1,356 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>面白クイズ100</title>
-    <style>
-        /* --- マイライフチェック版共通フォーマット --- */
+<style>
         body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            background-color: #f5f7fa; /* 落ち着いた背景色 */
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
             margin: 0;
-            padding: 0;
-            color: #333;
-            line-height: 1.6;
+            padding: 20px;
+            /* --- 追加: PCで中央寄せにする設定 --- */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* 外側のラッパー（最大幅800px） */
-        .main-wrapper {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
-            min-height: 100vh;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
-        }
-
-        /* ヘッダー部分 */
-        .header-banner {
-            background-color: #1a365d; /* マイライフチェック・ネイビー */
-            color: #fff;
-            padding: 40px 20px;
-            text-align: center;
-        }
-
-        .header-banner h1 {
-            margin: 0;
-            font-size: 2.2em;
-            letter-spacing: 2px;
-        }
-
-        .header-banner p {
-            margin: 10px 0 0;
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-
-        /* クイズコンテンツエリア */
-        .quiz-container {
-            padding: 40px 20px;
-            max-width: 600px; /* 内部のコンテンツ幅 */
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        /* トップ固定画像 */
-        .top-image {
-            display: block;
-            margin: 20px auto;
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-        }
-
-        /* ランダム画像用のスタイル */
+        /* --- 画像のサイズ設定（PC・スマホ共に40%） --- */
         :root {
-            --banner-width: 60%; 
+            --banner-width: 50%; 
         }
 
+        .quiz-container {
+            background-color: #fff;
+            padding: 30px 50px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 100%;           /* コンテナ自体は幅いっぱいに */
+            max-width: 800px;      /* ★ここを800pxに変更しました */
+            text-align: center;
+            margin: 20px auto; 
+            box-sizing: border-box; /* パディングを含めた幅計算 */
+        }
+
+        /* --- ランダム画像用のスタイル --- */
         .random-banner-container {
             text-align: center;
-            margin: 0 auto 30px;
+            margin: 10px auto 25px;
             width: var(--banner-width);
-            min-height: 100px;
+            min-height: 50px;
         }
 
         #randomBanner {
             width: 100%;
             height: auto;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             display: block;
             margin: 0 auto;
             opacity: 0;
-            transition: opacity 0.5s ease-in;
+            transition: opacity 0.3s ease-in;
         }
 
-        /* 問題文 */
-        #question { 
-            font-size: 1.5em; 
-            margin-bottom: 30px; 
-            color: #2d3748; 
-            min-height: 80px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center; 
-            line-height: 1.5;
-            font-weight: bold;
-            padding: 0 10px;
+        h1 {
+            color: #333;
+            font-size: 2.2em; 
+            margin-bottom: 15px;
         }
-
-        /* 選択肢 */
-        #choices { 
-            list-style: none; 
-            padding: 0; 
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        #choices li { 
-            font-size: 1.2em; 
-            background-color: #f8fafc; 
-            padding: 18px 20px; 
-            margin: 15px 0; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            transition: all 0.2s; 
-            text-align: left; 
-            border: 2px solid #e2e8f0; 
-        }
-
-        #choices li:hover { 
-            background-color: #edf2f7; 
-            border-color: #cbd5e0;
-            transform: translateY(-2px);
-        }
-
-        #choices li.correct { 
-            background-color: #c6f6d5; 
-            border-color: #68d391; 
-            color: #22543d;
-        }
-
-        #choices li.incorrect { 
-            background-color: #fed7d7; 
-            border-color: #feb2b2; 
-            color: #822727;
-        }
-
-        /* ボタン */
-        #next-btn, #restart-btn { 
-            padding: 15px 40px; 
-            border: none; 
-            border-radius: 50px; 
-            background-color: #3182ce; 
-            color: white; 
-            font-size: 1.2em; 
-            font-weight: bold;
-            cursor: pointer; 
-            margin-top: 30px; 
-            box-shadow: 0 4px 6px rgba(49, 130, 206, 0.2);
-            transition: background 0.3s;
-        }
-
-        #next-btn:hover {
-            background-color: #2b6cb0;
-        }
-
-        #result { 
-            font-size: 1.4em; 
-            font-weight: bold; 
-            margin-top: 25px;
-            color: #4a5568;
-        }
-
+        
+        #question { font-size: 1.6em; margin-bottom: 25px; color: #333; min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: left; line-height: 1.4; }
+        #choices { list-style: none; padding: 0; }
+        #choices li { font-size: 1.3em; background-color: #e9e9e9; padding: 12px 10px; margin: 12px 0; border-radius: 8px; cursor: pointer; transition: 0.3s; text-align: left; border: 1px solid #ccc; }
+        #choices li:hover { background-color: #dcdcdc; }
+        #choices li.correct { background-color: #a8e6a8; border-color: #7fbf7f; }
+        #choices li.incorrect { background-color: #ff9999; border-color: #e68a8a; }
+        #next-btn, #restart-btn { padding: 12px 25px; border: none; border-radius: 8px; background-color: #007bff; color: white; font-size: 1.1em; cursor: pointer; margin-top: 20px; }
+        #result { font-size: 1.4em; font-weight: bold; margin-top: 20px; }
         .hidden { display: none; }
 
-        /* スマホ対応 */
-        @media (max-width: 480px) { 
-            .header-banner h1 { font-size: 1.6em; }
-            .quiz-container { padding: 20px 15px; }
-            #question { font-size: 1.2em; }
-            #choices li { font-size: 1.1em; padding: 15px; }
-            :root { --banner-width: 90%; }
+        @media (max-width: 768px) { 
+            body { padding: 10px; }
+            .quiz-container { 
+                width: 95%;      /* スマホでは画面に合わせる */
+                padding: 20px 15px; 
+            }
+            #question { font-size: 1.4em; }
         }
     </style>
-</head>
-<body>
-
-<div class="main-wrapper">
-    <div class="header-banner">
-        <h1>面白クイズ100</h1>
-        <p>会員サイト無料画像3000枚からアップ</p>
-    </div>
-
-    <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg" class="top-image" alt="TOP">
-
+<img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg" style="display: block; margin: auto;">
     <div class="quiz-container">
+        <h1>面白クイズ100</h1> 
+<p style="text-align:center">会員サイト無料画像3000枚からアップ</p>
         <div class="random-banner-container">
             <img id="randomBanner" src="" alt="未来へのヒント">
         </div>
-
         <div id="quiz">
-            <div id="question"></div>
+            <h2 id="question"></h2>
             <ul id="choices"></ul>
-            <button id="next-btn" class="hidden">次の問題に進む</button>
+            <button id="next-btn" class="hidden">次の問題</button>
             <div id="result"></div>
         </div>
     </div>
-</div>
 
-<script>
-    // --- クイズデータ (変更なし) ---
-    const quizzes = [
-        { question: "1年中、ほぼ毎日働いているのに、一度も文句を言わないものは何？", answer: "カレンダー" },
-        { question: "叩けば叩くほど、頭が良くなるものは何？", answer: "たいこ" },
-        { question: "買えば買うほど短くなるものは何？", answer: "ろうそく" },
-        { question: "何もしなくても勝手に痩せていく動物は何？", answer: "ゾウ（象）" },
-        { question: "お風呂に入っても濡れない動物は何？", answer: "シャチ（鯱）" },
-        { question: "どこにでも行くけれど、どこにも行けないものは何？", answer: "切手" },
-        { question: "食べれば食べるほどお腹がすくものは何？", answer: "もやし" },
-        { question: "持っているだけで暖かくなるものは何？", answer: "カイロ" },
-        { question: "誰もが喜んで受け取るけれど、誰も使いたがらないものは何？", answer: "プレゼント（贈答品）" },
-        { question: "食べ物なのに、口に入れても味がしないものは何？", answer: "氷" },
-        { question: "いつも何かを食べているけれど、決して満腹にならないものは何？", answer: "ゴミ箱" },
-        { question: "自分のことを知っているのに、他人のことは知らないものは何？", answer: "自分自身" },
-        { question: "どんなに大きくても、決して重くないものは何？", answer: "影" },
-        { question: "どんなに走っても、前に進めないものは何？", answer: "マラソン" },
-        { question: "いつも何かを失うけれど、決して貧乏にならないものは何？", answer: "記憶" },
-        { question: "どんなにたくさんあっても、決して数えられないものは何？", answer: "星" },
-        { question: "どんなに遠くても、決して近づけないものは何？", answer: "過去" },
-        { question: "食べても食べても、なくならない食べ物は何？", answer: "経験" },
-        { question: "いつも何かを測っているけれど、決して長さを測れないものは何？", answer: "時間" },
-        { question: "誰かが触ると消えてしまうものは何？", answer: "しゃぼん玉" },
-        { question: "どんなにたくさん集めても、決して大きさが変わらないものは何？", answer: "砂" },
-        { question: "どんなにたくさん飲んでも、決して酔わない飲み物は何？", answer: "水" },
-        { question: "いつも何かを話しているけれど、決して声を出さないものは何？", answer: "本" },
-        { question: "どんなにたくさん使っても、決して減らないものは何？", answer: "知恵" },
-        { question: "いつも何かを待っているけれど、決して先に進めないものは何？", answer: "信号" },
-        { question: "どんなにたくさん持っても、決して重くならないものは何？", answer: "空気" },
-        { question: "いつも何かを教えてくれるけれど、決して先生ではないものは何？", answer: "テレビ" },
-        { question: "どんなにたくさん積んでも、決して高さが変わらないものは何？", answer: "記憶" },
-        { question: "いつも何かを運んでいるけれど、決して歩かないものは何？", answer: "船" },
-        { question: "どんなにたくさん食べても、決して満腹にならないものは何？", answer: "言葉" },
-        { question: "いつも何かを運んでいるけれど、決して重さを感じないものは何？", answer: "雲" },
-        { question: "どんなにたくさん見ても、決して飽きないものは何？", answer: "夢" },
-        { question: "いつも何かを写しているけれど、決して自分を見せないものは何？", answer: "カメラ" },
-        { question: "どんなにたくさんあっても、決して使えないものは何？", answer: "予言" },
-        { question: "いつも何かを見ているけれど、決して目を持たないものは何？", answer: "レンズ" },
-        { question: "どんなにたくさん持っても、決して価値が減らないものは何？", answer: "経験" },
-        { question: "いつも何かを燃やしているけれど、決して熱くならないものは何？", answer: "情熱" },
-        { question: "どんなにたくさん乗っても、決して渋滞しない乗り物は何？", answer: "夢" },
-        { question: "いつも何かを聴いているけれど、決して耳を持たないものは何？", answer: "音楽" },
-        { question: "どんなにたくさん降っても、決して水浸しにならないものは何？", answer: "涙" },
-        { question: "いつも何かを追いかけているけれど、決して捕まえられないものは何？", answer: "夢" },
-        { question: "どんなにたくさん集めても、決して重くならないものは何？", answer: "思い出" },
-        { question: "いつも何かを数えているけれど、決して数字を持たないものは何？", answer: "時計" },
-        { question: "どんなにたくさん読んでも、決して目が疲れないものは何？", answer: "心" },
-        { question: "いつも何かを運んでいるけれど、決して物を運ばないものは何？", answer: "風" },
-        { question: "どんなにたくさん食べても、決して太らない食べ物は何？", answer: "嘘" },
-        { question: "いつも何かを測っているけれど、決して長さを測れないものは何？", answer: "記憶" },
-        { question: "どんなにたくさん書かれても、決して紙が減らないものは何？", answer: "空想" },
-        { question: "いつも何かを教えてくれるけれど、決して教科書ではないものは何？", answer: "人生" },
-        { question: "どんなにたくさん持っても、決して盗まれないものは何？", answer: "笑顔" },
-        { question: "いつも何かを照らしているけれど、決して光を放たないものは何？", answer: "鏡" },
-        { question: "どんなにたくさん乗っても、決して沈まない乗り物は何？", answer: "夢" },
-        { question: "いつも何かを語っているけれど、決して声を出さないものは何？", answer: "物語" },
-        { question: "どんなにたくさん見ても、決して目が疲れないものは何？", answer: "夢" },
-        { question: "いつも何かを運んでいるけれど、決して重さを感じないものは何？", answer: "時間" },
-        { question: "どんなにたくさん食べても、決して満腹にならないものは何？", answer: "知識" },
-        { question: "いつも何かを待っているけれど、決して先に進めないものは何？", answer: "希望" },
-        { question: "どんなにたくさん積んでも、決して崩れないものは何？", answer: "信頼" },
-        { question: "いつも何かを追いかけているけれど、決して捕まえられないものは何？", answer: "過去" },
-        { question: "どんなにたくさん集めても、決して重くならないものは何？", answer: "夢" },
-        { question: "いつも何かを数えているけれど、決して数字を持たないものは何？", answer: "記憶" },
-        { question: "どんなにたくさん読んでも、決して目が疲れないものは何？", answer: "友情" },
-        { question: "いつも何かを運んでいるけれど、決して物を運ばないものは何？", answer: "想像力" },
-        { question: "どんなにたくさん食べても、決して太らない食べ物は何？", answer: "知識" },
-        { question: "いつも何かを測っているけれど、決して長さを測れないものは何？", answer: "愛" },
-        { question: "どんなにたくさん書かれても、決して紙が減らないものは何？", answer: "夢" },
-        { question: "いつも何かを教えてくれるけれど、決して教科書ではないものは何？", answer: "失敗" },
-        { question: "どんなにたくさん持っても、決して盗まれないものは何？", answer: "才能" },
-        { question: "いつも何かを照らしているけれど、決して光を放たないものは何？", answer: "思想" },
-        { question: "どんなにたくさん乗っても、決して沈まない乗り物は何？", answer: "希望" },
-        { question: "いつも何かを語っているけれど、決して声を出さないものは何？", answer: "詩" },
-        { question: "どんなにたくさん見ても、決して目が疲れないものは何？", answer: "景色" },
-        { question: "いつも何かを運んでいるけれど、決して重さを感じないものは何？", answer: "言葉" },
-        { question: "どんなにたくさん食べても、決して満腹にならないものは何？", answer: "夢" },
-        { question: "いつも何かを待っているけれど、決して先に進めないものは何？", answer: "運命" },
-        { question: "どんなにたくさん積んでも、決して崩れないものは何？", answer: "努力" },
-        { question: "いつも何かを追いかけているけれど、決して捕まえられないものは何？", answer: "未来" },
-        { question: "どんなにたくさん集めても、決して重くならないものは何？", answer: "友情" },
-        { question: "いつも何かを数えているけれど、決して数字を持たないものは何？", answer: "経験" },
-        { question: "どんなにたくさん読んでも、決して目が疲れないものは何？", answer: "心" },
-        { question: "いつも何かを運んでいるけれど、決して物を運ばないものは何？", answer: "幸福" },
-        { question: "どんなにたくさん食べても、決して太らない食べ物は何？", answer: "愛" },
-        { question: "いつも何かを測っているけれど、決して長さを測れないものは何？", answer: "友情" },
-        { question: "どんなにたくさん書かれても、決して紙が減らないものは何？", answer: "知識" },
-        { question: "いつも何かを教えてくれるけれど、決して教科書ではないものは何？", answer: "自然" },
-        { question: "どんなにたくさん持っても、決して盗まれないものは何？", answer: "自由" },
-        { question: "いつも何かを照らしているけれど、決して光を放たないものは何？", answer: "感情" },
-        { question: "どんなにたくさん乗っても、決して沈まない乗り物は何？", answer: "想像力" },
-        { question: "いつも何かを語っているけれど、決して声を出さないものは何？", answer: "景色" },
-        { question: "どんなにたくさん見ても、決して目が疲れないものは何？", answer: "笑顔" },
-        { question: "いつも何かを運んでいるけれど、決して重さを感じないものは何？", answer: "知識" },
-        { question: "どんなにたくさん食べても、決して満腹にならないものは何？", answer: "感謝" },
-        { question: "いつも何かを待っているけれど、決して先に進めないものは何？", answer: "過去" },
-        { question: "どんなにたくさん積んでも、決して崩れないものは何？", answer: "才能" },
-        { question: "いつも何かを追いかけているけれど、決して捕まえられないものは何？", answer: "幸福" },
-        { question: "どんなにたくさん集めても、決して重くならないものは何？", answer: "希望" },
-    ];
+    <script>
+        // --- クイズデータ ---
+        const quizzes = [
+            { question: "1年中、ほぼ毎日働いているのに、一度も文句を言わないものは何？", answer: "カレンダー" },
+            { question: "叩けば叩くほど、頭が良くなるものは何？", answer: "たいこ" },
+            { question: "買えば買うほど短くなるものは何？", answer: "ろうそく" },
+            { question: "何もしなくても勝手に痩せていく動物は何？", answer: "ゾウ（象）" },
+            { question: "お風呂に入っても濡れない動物は何？", answer: "シャチ（鯱）" },
+            { question: "どこにでも行くけれど、どこにも行けないものは何？", answer: "切手" },
+            { question: "食べれば食べるほどお腹がすくものは何？", answer: "もやし" },
+            { question: "持っているだけで暖かくなるものは何？", answer: "カイロ" },
+            { question: "誰もが喜んで受け取るけれど、誰も使いたがらないものは何？", answer: "プレゼント（贈答品）" },
+            { question: "食べ物なのに、口に入れても味がしないものは何？", answer: "氷" },
+            { question: "いつも何かを食べているけれど、決して満腹にならないものは何？", answer: "ゴミ箱" },
+            { question: "自分のことを知っているのに、他人のことは知らないものは何？", answer: "自分自身" },
+            { question: "どんなに大きくても、決して重くないものは何？", answer: "影" },
+            { question: "どんなに走っても、前に進めないものは何？", answer: "マラソン" },
+            { question: "いつも何かを失うけれど、決して貧乏にならないものは何？", answer: "記憶" },
+            { question: "どんなにたくさんあっても、決して数えられないものは何？", answer: "星" },
+            { question: "どんなに遠くても、決して近づけないものは何？", answer: "過去" },
+            { question: "食べても食べても、なくならない食べ物は何？", answer: "経験" },
+            { question: "いつも何かを測っているけれど、決して長さを測れないものは何？", answer: "時間" },
+            { question: "誰かが触ると消えてしまうものは何？", answer: "しゃぼん玉" },
+            { question: "どんなにたくさん集めても、決して大きさが変わらないものは何？", answer: "砂" },
+            { question: "どんなにたくさん飲んでも、決して酔わない飲み物は何？", answer: "水" },
+            { question: "いつも何かを話しているけれど、決して声を出さないものは何？", answer: "本" },
+            { question: "どんなにたくさん使っても、決して減らないものは何？", answer: "知恵" },
+            { question: "いつも何かを待っているけれど、決して先に進めないものは何？", answer: "信号" },
+            { question: "どんなにたくさん持っても、決して重くならないものは何？", answer: "空気" },
+            { question: "いつも何かを教えてくれるけれど、決して先生ではないものは何？", answer: "テレビ" },
+            { question: "どんなにたくさん積んでも、決して高さが変わらないものは何？", answer: "記憶" },
+            { question: "いつも何かを運んでいるけれど、決して歩かないものは何？", answer: "船" },
+            { question: "どんなにたくさん食べても、決して満腹にならないものは何？", answer: "言葉" },
+            { question: "いつも何かを運んでいるけれど、決して重さを感じないものは何？", answer: "雲" },
+            { question: "どんなにたくさん見ても、決して飽きないものは何？", answer: "夢" },
+            { question: "いつも何かを言っているけれど、決して本音を言わないものは何？", answer: "鏡" },
+            { question: "どんなにたくさん投げても、決して壊れないものは何？", answer: "影" },
+            { question: "いつも何かを隠しているけれど、決して嘘をつかないものは何？", answer: "秘密" },
+            { question: "どんなにたくさん走っても、決して疲れないものは何？", answer: "時間" },
+            { question: "いつも何かを写しているけれど、決して自分を見せないものは何？", answer: "カメラ" },
+            { question: "どんなにたくさんあっても、決して使えないものは何？", answer: "予言" },
+            { question: "いつも何かを見ているけれど、決して目を持たないものは何？", answer: "レンズ" },
+            { question: "どんなにたくさん持っても、決して価値が減らないものは何？", answer: "経験" },
+            { question: "いつも何かを燃やしているけれど、決して熱くならないものは何？", answer: "情熱" },
+            { question: "どんなにたくさん乗っても、決して渋滞しない乗り物は何？", answer: "夢" },
+            { question: "いつも何かを聴いているけれど、決して耳を持たないものは何？", answer: "音楽" },
+            { question: "どんなにたくさん降っても、決して水浸しにならないものは何？", answer: "涙" },
+            { question: "いつも何かを追いかけているけれど、決して捕まえられないものは何？", answer: "夢" },
+            { question: "どんなにたくさん集めても、決して重くならないものは何？", answer: "思い出" },
+            { question: "いつも何かを数えているけれど、決して数字を持たないものは何？", answer: "時計" },
+            { question: "どんなにたくさん読んでも、決して目が疲れないものは何？", answer: "心" },
+            { question: "いつも何かを運んでいるけれど、決して物を運ばないものは何？", answer: "風" },
+            { question: "どんなにたくさん食べても、決して太らない食べ物は何？", answer: "嘘" },
+            { question: "いつも何かを測っているけれど、決して長さを測れないものは何？", answer: "記憶" },
+            { question: "どんなにたくさん書かれても、決して紙が減らないものは何？", answer: "空想" },
+            { question: "いつも何かを教えてくれるけれど、決して教科書ではないものは何？", answer: "人生" },
+            { question: "どんなにたくさん持っても、決して盗まれないものは何？", answer: "笑顔" },
+            { question: "いつも何かを照らしているけれど、決して光を放たないものは何？", answer: "鏡" },
+            { question: "どんなにたくさん乗っても、決して沈まない乗り物は何？", answer: "夢" },
+            { question: "いつも何かを語っているけれど、決して声を出さないものは何？", answer: "物語" },
+            { question: "どんなにたくさん見ても、決して目が疲れないものは何？", answer: "夢" },
+            { question: "いつも何かを運んでいるけれど、決して重さを感じないものは何？", answer: "時間" },
+            { question: "どんなにたくさん食べても、決して満腹にならないものは何？", answer: "知識" },
+            { question: "いつも何かを待っているけれど、決して先に進めないものは何？", answer: "希望" },
+            { question: "どんなにたくさん積んでも、決して崩れないものは何？", answer: "信頼" },
+            { question: "いつも何かを追いかけているけれど、決して捕まえられないものは何？", answer: "過去" },
+            { question: "どんなにたくさん集めても、決して重くならないものは何？", answer: "夢" },
+            { question: "いつも何かを数えているけれど、決して数字を持たないものは何？", answer: "記憶" },
+            { question: "どんなにたくさん読んでも、決して目が疲れないものは何？", answer: "友情" },
+            { question: "いつも何かを運んでいるけれど、決して物を運ばないものは何？", answer: "想像力" },
+            { question: "どんなにたくさん食べても、決して太らない食べ物は何？", answer: "知識" },
+            { question: "いつも何かを測っているけれど、決して長さを測れないものは何？", answer: "愛" },
+            { question: "どんなにたくさん書かれても、決して紙が減らないものは何？", answer: "夢" },
+            { question: "いつも何かを教えてくれるけれど、決して教科書ではないものは何？", answer: "失敗" },
+            { question: "どんなにたくさん持っても、決して盗まれないものは何？", answer: "才能" },
+            { question: "いつも何かを照らしているけれど、決して光を放たないものは何？", answer: "思想" },
+            { question: "どんなにたくさん乗っても、決して沈まない乗り物は何？", answer: "希望" },
+            { question: "いつも何かを語っているけれど、決して声を出さないものは何？", answer: "詩" },
+            { question: "どんなにたくさん見ても、決して目が疲れないものは何？", answer: "景色" },
+            { question: "いつも何かを運んでいるけれど、決して重さを感じないものは何？", answer: "言葉" },
+            { question: "どんなにたくさん食べても、決して満腹にならないものは何？", answer: "夢" },
+            { question: "いつも何かを待っているけれど、決して先に進めないものは何？", answer: "運命" },
+            { question: "どんなにたくさん積んでも、決して崩れないものは何？", answer: "努力" },
+            { question: "いつも何かを追いかけているけれど、決して捕まえられないものは何？", answer: "未来" },
+            { question: "どんなにたくさん集めても、決して重くならないものは何？", answer: "友情" },
+            { question: "いつも何かを数えているけれど、決して数字を持たないものは何？", answer: "経験" },
+            { question: "どんなにたくさん読んでも、決して目が疲れないものは何？", answer: "心" },
+            { question: "いつも何かを運んでいるけれど、決して物を運ばないものは何？", answer: "幸福" },
+            { question: "どんなにたくさん食べても、決して太らない食べ物は何？", answer: "愛" },
+            { question: "いつも何かを測っているけれど、決して長さを測れないものは何？", answer: "友情" },
+            { question: "どんなにたくさん書かれても、決して紙が減らないものは何？", answer: "知識" },
+            { question: "いつも何かを教えてくれるけれど、決して教科書ではないものは何？", answer: "自然" },
+            { question: "どんなにたくさん持っても、決して盗まれないものは何？", answer: "自由" },
+            { question: "いつも何かを照らしているけれど、決して光を放たないものは何？", answer: "感情" },
+            { question: "どんなにたくさん乗っても、決して沈まない乗り物は何？", answer: "想像力" },
+            { question: "いつも何かを語っているけれど、決して声を出さないものは何？", answer: "景色" },
+            { question: "どんなにたくさん見ても、決して目が疲れないものは何？", answer: "笑顔" },
+            { question: "いつも何かを運んでいるけれど、決して重さを感じないものは何？", answer: "知識" },
+            { question: "どんなにたくさん食べても、決して満腹にならないものは何？", answer: "感謝" },
+            { question: "いつも何かを待っているけれど、決して先に進めないものは何？", answer: "過去" },
+            { question: "どんなにたくさん積んでも、決して崩れないものは何？", answer: "才能" },
+            { question: "いつも何かを追いかけているけれど、決して捕まえられないものは何？", answer: "幸福" },
+            { question: "どんなにたくさん集めても、決して重くならないものは何？", answer: "希望" },
+        ];
 
-    let currentQuizIndex = 0;
-    let score = 0;
-    let isAnswered = false;
 
-    const questionEl = document.getElementById('question');
-    const choicesEl = document.getElementById('choices');
-    const nextBtn = document.getElementById('next-btn');
-    const resultEl = document.getElementById('result');
-    const bannerImg = document.getElementById('randomBanner');
+        let currentQuizIndex = 0;
+        let score = 0;
+        let isAnswered = false;
 
-    const images = [
-        "0-38.jpg", "0-39.jpg", "0-49.jpg", "0-50.jpg", "0-55.jpg", "0-56.jpg", "0-77.jpg", "0-78.jpg", "0-83.jpg", "0-84.jpg", 
-        "037.jpg", "038.jpg", "039.jpg", "043.jpg", "044.jpg", "045.jpg", "046.jpg", "047.jpg", 
-        "100jobs0-05.jpg", "100jobs0-06.jpg", "100jobs0-07.jpg", "100jobs0-08.jpg", "100jobs0-09.jpg", "100jobs0-10.jpg", "100jobs0-11.jpg", "100jobs0-29.jpg", "100jobs0-30.jpg", "100jobs0-31.jpg", "100jobs0-32.jpg", "100jobs0-36.jpg", "100jobs0-37.jpg", "100jobs0-38.jpg", "100jobs0-39.jpg", "100jobs0-66.jpg", "100jobs0-67.jpg", "100jobs0-73.jpg", "100jobs0-74.jpg", 
-        "650.jpg", "651.jpg", "652.jpg", "653.jpg", "654.jpg", "655.jpg", "656.jpg", "657.jpg", "658.jpg", "659.jpg", "660.jpg", "661.jpg", "662.jpg", "663.jpg", "664.jpg", "665.jpg", "666.jpg", "667.jpg", "668.jpg", "669.jpg", "670.jpg", "671.jpg", "672.jpg", "673.jpg", "674.jpg", "675.jpg", "676.jpg", "677.jpg", "678.jpg", "679.jpg", "680.jpg", "681.jpg", "682.jpg", "683.jpg", "684.jpg", "685.jpg", "686.jpg", "687.jpg", "688.jpg", "689.jpg", "690.jpg", "691.jpg", "692.jpg", "693.jpg", "694.jpg", "695.jpg", "696.jpg", "697.jpg", "698.jpg", "699.jpg", "700.jpg", "701.jpg", "702.jpg", "703.jpg", "704.jpg", "705.jpg", "706.jpg", "707.jpg", "708.jpg", "709.jpg", "710.jpg", "711.jpg", "712.jpg", "713.jpg", "714.jpg", "715.jpg", "716.jpg", "717.jpg", "718.jpg", "719.jpg", "720.jpg", "721.jpg", "722.jpg", "723.jpg", "724.jpg", "725.jpg", "726.jpg", "727.jpg", "728.jpg", "729.jpg", "730.jpg", "731.jpg", "732.jpg", "733.jpg", "734.jpg", "735.jpg", "736.jpg", "737.jpg", "738.jpg", "739.jpg", "740.jpg", "741.jpg", "742.jpg", "743.jpg", "744.jpg", "745.jpg", 
-        "Fleamarket-0-01.jpg", "Fleamarket-0-02.jpg", "Fleamarket-0-03.jpg", "Fleamarket-0-04.jpg", "Fleamarket-0-05.jpg", "Fleamarket-0-06.jpg", "Fleamarket-0-100.jpg", "Fleamarket-0-42.jpg", "Fleamarket-0-43.jpg", "Fleamarket-0-44.jpg", "Fleamarket-0-49.jpg", "Fleamarket-0-50.jpg", "Fleamarket-0-51.jpg", "Fleamarket-0-56.jpg", "Fleamarket-0-57.jpg", "Fleamarket-0-58.jpg", "Fleamarket-0-63.jpg", "Fleamarket-0-64.jpg", "Fleamarket-0-65.jpg", "Fleamarket-0-70.jpg", "Fleamarket-0-71.jpg", "Fleamarket-0-72.jpg", "Fleamarket-0-77.jpg", "Fleamarket-0-78.jpg", "Fleamarket-0-79.jpg", "Fleamarket-0-84.jpg", "Fleamarket-0-85.jpg", "Fleamarket-0-86.jpg", "Fleamarket-0-91.jpg", "Fleamarket-0-92.jpg", "Fleamarket-0-93.jpg", "Fleamarket-0-98.jpg", "Fleamarket-0-99.jpg", 
-        "agean-001.jpg", "agean-002.jpg", "agean-003.jpg", "agean-004.jpg", "agean-005.jpg", "agean-006.jpg", "agean-007.jpg", "agean-008.jpg", "agean-009.jpg", "agean-010.jpg", "agean-011.jpg", "agean-012.jpg", "agean-013.jpg", "agean-014.jpg", "agean-015.jpg", "agean-016.jpg", "agean-017.jpg", "agean-018.jpg", "agean-019.jpg", "agean-020.jpg", "agean-021.jpg", "agean-022.jpg", "agean-023.jpg", "agean-024.jpg", "agean-025.jpg", "agean-026.jpg", "agean-027.jpg", "agean-028.jpg", "agean-029.jpg", "agean-030.jpg", "agean-031.jpg", "agean-032.jpg", "agean-033.jpg", "agean-034.jpg", "agean-035.jpg", "agean-036.jpg", "agean-037.jpg", "agean-038.jpg", "agean-039.jpg", "agean-040.jpg", "agean-041.jpg", "agean-042.jpg", "agean-043.jpg", "agean-044.jpg", "agean-045.jpg", "agean-046.jpg", "agean-047.jpg", "agean-048.jpg", "agean-049.jpg", "agean-050.jpg", "agean-051.jpg", "agean-052.jpg", "agean-053.jpg", "agean-054.jpg", "agean-055.jpg", "agean-056.jpg", "agean-057.jpg", "agean-058.jpg", 
-        "alphabet-0-06.jpg", "alphabet-0-07.jpg", "alphabet-0-08.jpg", "alphabet-0-09.jpg", "alphabet-0-10.jpg", "alphabet-0-11.jpg", "alphabet-0-12.jpg", "alphabet-0-13.jpg", "alphabet-0-14.jpg", "alphabet-0-15.jpg", "alphabet-0-16.jpg", "alphabet-0-17.jpg", "alphabet-0-18.jpg", "alphabet-0-19.jpg", "alphabet-0-20.jpg", "alphabet-0-21.jpg", "alphabet-0-22.jpg", "alphabet-0-23.jpg", "alphabet-0-24.jpg", "alphabet-0-25.jpg", "alphabet-0-26.jpg", "alphabet-0-72.jpg", "alphabet-0-73.jpg", "alphabet-0-79.jpg", "alphabet-0-80.jpg", "alphabet-0-86.jpg", "alphabet-0-87.jpg", "alphabet-0-93.jpg", "alphabet-0-94.jpg", 
-        "animal-cha-0-100.jpg", "animal-cha-0-16.jpg", "animal-cha-0-17.jpg", "animal-cha-0-23.jpg", "animal-cha-0-24.jpg", "animal-cha-0-32.jpg", "animal-cha-0-33.jpg", "animal-cha-0-34.jpg", "animal-cha-0-35.jpg", "animal-cha-0-39.jpg", "animal-cha-0-40.jpg", "animal-cha-0-41.jpg", "animal-cha-0-42.jpg", "animal-cha-0-64.jpg", "animal-cha-0-65.jpg", "animal-cha-0-66.jpg", "animal-cha-0-71.jpg", "animal-cha-0-72.jpg", "animal-cha-0-73.jpg", "animal-cha-0-78.jpg", "animal-cha-0-79.jpg", "animal-cha-0-80.jpg", "animal-cha-0-85.jpg", "animal-cha-0-86.jpg", "animal-cha-0-87.jpg", "animal-cha-0-98.jpg", "animal-cha-0-99.jpg", 
-        "animals-0-05.jpg", "animals-0-06.jpg", "animals-0-07.jpg", "animals-0-08.jpg", "animals-0-100.jpg", "animals-0-12.jpg", "animals-0-13.jpg", "animals-0-14.jpg", "animals-0-15.jpg", "animals-0-19.jpg", "animals-0-20.jpg", "animals-0-21.jpg", "animals-0-22.jpg", "animals-0-26.jpg", "animals-0-27.jpg", "animals-0-28.jpg", "animals-0-29.jpg", "animals-0-41.jpg", "animals-0-42.jpg", "animals-0-43.jpg", "animals-0-48.jpg", "animals-0-49.jpg", "animals-0-50.jpg", "animals-0-55.jpg", "animals-0-56.jpg", "animals-0-57.jpg", "animals-0-62.jpg", "animals-0-63.jpg", "animals-0-64.jpg", "animals-0-86.jpg", "animals-0-87.jpg", "animals-0-88.jpg", "animals-0-89.jpg", "animals-0-93.jpg", "animals-0-94.jpg", "animals-0-95.jpg", "animals-0-96.jpg", 
-        "aqua-0-01.jpg", "aqua-0-02.jpg", "aqua-0-03.jpg", "aqua-0-24.jpg", "aqua-0-25.jpg", "aqua-0-26.jpg", "aqua-0-27.jpg", "aqua-0-31.jpg", "aqua-0-32.jpg", "aqua-0-33.jpg", "aqua-0-34.jpg", "aqua-0-38.jpg", "aqua-0-39.jpg", "aqua-0-40.jpg", "aqua-0-41.jpg", "aqua-0-45.jpg", "aqua-0-46.jpg", "aqua-0-47.jpg", "aqua-0-48.jpg", "aqua-0-52.jpg", "aqua-0-53.jpg", "aqua-0-54.jpg", "aqua-0-55.jpg", "aqua-0-59.jpg", "aqua-0-60.jpg", "aqua-0-61.jpg", "aqua-0-62.jpg", "aqua-0-66.jpg", "aqua-0-67.jpg", "aqua-0-68.jpg", "aqua-0-69.jpg", "aqua-0-73.jpg", "aqua-0-74.jpg", "aqua-0-75.jpg", "aqua-0-76.jpg", "aqua-0-80.jpg", "aqua-0-81.jpg", "aqua-0-82.jpg", "aqua-0-83.jpg", "aqua-0-87.jpg", "aqua-0-88.jpg", "aqua-0-89.jpg", "aqua-0-90.jpg", "aqua-0-94.jpg", "aqua-0-95.jpg", "aqua-0-96.jpg", "aqua-0-97.jpg", 
-        "aroma-0-37.jpg", "aroma-0-38.jpg", "aroma-0-39.jpg", "aroma-0-44.jpg", "aroma-0-45.jpg", "aroma-0-46.jpg", "aroma-0-51.jpg", "aroma-0-52.jpg", "aroma-0-53.jpg", "aroma-0-58.jpg", "aroma-0-59.jpg", "aroma-0-60.jpg", 
-        "balloon-007.jpg", "balloon-008.jpg", "balloon-009.jpg", "balloon-014.jpg", "balloon-015.jpg", "balloon-016.jpg", "balloon-021.jpg", "balloon-022.jpg", "balloon-023.jpg", "balloon-028.jpg", "balloon-029.jpg", "balloon-030.jpg", "balloon-035.jpg", "balloon-036.jpg", "balloon-037.jpg", "balloon-042.jpg", "balloon-043.jpg", "balloon-044.jpg", "balloon-049.jpg", "balloon-050.jpg", 
-        "bath-time-0-01.jpg", "bath-time-0-06.jpg", "bath-time-0-07.jpg", "bath-time-0-08.jpg", "bath-time-0-100.jpg", "bath-time-0-13.jpg", "bath-time-0-14.jpg", "bath-time-0-15.jpg", "bath-time-0-20.jpg", "bath-time-0-21.jpg", "bath-time-0-22.jpg", "bath-time-0-27.jpg", "bath-time-0-28.jpg", "bath-time-0-29.jpg", "bath-time-0-34.jpg", "bath-time-0-35.jpg", "bath-time-0-36.jpg", "bath-time-0-41.jpg", "bath-time-0-42.jpg", "bath-time-0-43.jpg", "bath-time-0-48.jpg", "bath-time-0-49.jpg", "bath-time-0-50.jpg", "bath-time-0-55.jpg", "bath-time-0-56.jpg", "bath-time-0-57.jpg", "bath-time-0-62.jpg", "bath-time-0-63.jpg", "bath-time-0-64.jpg", "bath-time-0-69.jpg", "bath-time-0-70.jpg", "bath-time-0-71.jpg", "bath-time-0-86.jpg", "bath-time-0-87.jpg", "bath-time-0-88.jpg", "bath-time-0-93.jpg", "bath-time-0-94.jpg", "bath-time-0-95.jpg", 
-        "beer-001.jpg", "beer-002.jpg", "beer-014.jpg", "beer-015.jpg", "beer-016.jpg", "beer-017.jpg", "beer-018.jpg", "beer-019.jpg", "beer-020.jpg", "beer-021.jpg", "beer-022.jpg", "beer-023.jpg", "beer-024.jpg", "beer-025.jpg", "beer-026.jpg", "beer-027.jpg", "beer-028.jpg", "beer-029.jpg", "beer-030.jpg", "beer-031.jpg", "beer-032.jpg", "beer-033.jpg", "beer-034.jpg", "beer-035.jpg", "beer-036.jpg", "beer-037.jpg", "beer-038.jpg", "beer-039.jpg", "beer-040.jpg", "beer-041.jpg", "beer-042.jpg", "beer-043.jpg", "beer-044.jpg", "beer-045.jpg", "beer-046.jpg", "beer-047.jpg", "beer-048.jpg", 
-        "birthday-006.jpg", "birthday-007.jpg", "birthday-008.jpg", "birthday-009.jpg", "birthday-010.jpg", "birthday-011.jpg", "birthday-012.jpg", "birthday-013.jpg", "birthday-014.jpg", "birthday-015.jpg", "birthday-016.jpg", "birthday-017.jpg", "birthday-018.jpg", "birthday-019.jpg", "birthday-020.jpg", "birthday-021.jpg", "birthday-022.jpg", "birthday-023.jpg", "birthday-024.jpg", "birthday-025.jpg", "birthday-026.jpg", "birthday-027.jpg", "birthday-028.jpg", "birthday-029.jpg", "birthday-030.jpg", "birthday-031.jpg", "birthday-032.jpg", "birthday-033.jpg", "birthday-034.jpg", "birthday-035.jpg", "birthday-036.jpg", "birthday-037.jpg", "birthday-038.jpg", "birthday-039.jpg", "birthday-040.jpg", "birthday-041.jpg", "birthday-042.jpg", "birthday-043.jpg", "birthday-044.jpg", "birthday-045.jpg", "birthday-046.jpg", "birthday-047.jpg", "birthday-048.jpg", 
-        "book-001.jpg", "book-002.jpg", "book-003.jpg", "book-004.jpg", "book-005.jpg", "book-006.jpg", "book-007.jpg", "book-008.jpg", "book-009.jpg", "book-010.jpg", "book-011.jpg", "book-012.jpg", "book-013.jpg", "book-014.jpg", "book-015.jpg", "book-016.jpg", "book-017.jpg", "book-018.jpg", "book-019.jpg", "book-020.jpg", "book-021.jpg", "book-022.jpg", "book-023.jpg", "book-024.jpg", "book-025.jpg", "book-026.jpg", "book-027.jpg", "book-028.jpg", "book-029.jpg", "book-030.jpg", "book-031.jpg", "book-032.jpg", "book-033.jpg", "book-034.jpg", "book-035.jpg", "book-036.jpg", "book-037.jpg", "book-038.jpg", "book-039.jpg", "book-040.jpg", "book-041.jpg", "book-042.jpg", "book-043.jpg", "book-044.jpg", "book-045.jpg", "book-046.jpg", "book-047.jpg", "book-048.jpg", 
-        "breadi-0-03.jpg", "breadi-0-04.jpg", "breadi-0-05.jpg", "breadi-0-10.jpg", "breadi-0-11.jpg", "breadi-0-12.jpg", "breadi-0-17.jpg", "breadi-0-18.jpg", "breadi-0-19.jpg", "breadi-0-24.jpg", "breadi-0-25.jpg", "breadi-0-26.jpg", "breadi-0-31.jpg", "breadi-0-32.jpg", "breadi-0-33.jpg", "breadi-0-38.jpg", "breadi-0-39.jpg", "breadi-0-40.jpg", "breadi-0-45.jpg", "breadi-0-46.jpg", "breadi-0-47.jpg", "breadi-0-52.jpg", "breadi-0-53.jpg", "breadi-0-54.jpg", "breadi-0-59.jpg", "breadi-0-60.jpg", "breadi-0-61.jpg", "breadi-0-66.jpg", "breadi-0-67.jpg", "breadi-0-68.jpg", "breadi-0-73.jpg", "breadi-0-74.jpg", "breadi-0-75.jpg", "breadi-0-80.jpg", "breadi-0-81.jpg", "breadi-0-82.jpg", "breadi-0-87.jpg", "breadi-0-88.jpg", "breadi-0-89.jpg", "breadi-0-94.jpg", "breadi-0-95.jpg", "breadi-0-96.jpg", 
-        "breadph-025.jpg", "breadph-026.jpg", "breadph-027.jpg", "breadph-028.jpg", "breadph-029.jpg", "breadph-030.jpg", "breadph-031.jpg", "breadph-032.jpg", "breadph-033.jpg", "breadph-034.jpg", "breadph-035.jpg", "breadph-036.jpg", "breadph-037.jpg", "breadph-038.jpg", "breadph-039.jpg", "breadph-040.jpg", "breadph-041.jpg", "breadph-042.jpg", "breadph-043.jpg", "breadph-044.jpg", "breadph-045.jpg", "breadph-046.jpg", "breadph-047.jpg", "breadph-048.jpg", "breadph-049.jpg", "breadph-050.jpg", 
-        "bubble-001.jpg", "bubble-002.jpg", "bubble-003.jpg", "bubble-004.jpg", "bubble-005.jpg", "bubble-006.jpg", "bubble-007.jpg", "bubble-008.jpg", "bubble-009.jpg", "bubble-010.jpg", "bubble-011.jpg", "bubble-012.jpg", "bubble-013.jpg", "bubble-014.jpg", "bubble-015.jpg", "bubble-016.jpg", "bubble-017.jpg", "bubble-018.jpg", "bubble-019.jpg", "bubble-020.jpg", "bubble-021.jpg", "bubble-022.jpg", "bubble-023.jpg", "bubble-024.jpg", "bubble-025.jpg", "bubble-026.jpg", "bubble-027.jpg", "bubble-028.jpg", "bubble-029.jpg", "bubble-030.jpg", "bubble-031.jpg", "bubble-032.jpg", "bubble-033.jpg", "bubble-034.jpg", "bubble-035.jpg", "bubble-036.jpg", "bubble-037.jpg", "bubble-038.jpg", "bubble-039.jpg", "bubble-040.jpg", "bubble-041.jpg", "bubble-042.jpg", "bubble-043.jpg", "bubble-044.jpg", "bubble-045.jpg", "bubble-046.jpg", "bubble-047.jpg", "bubble-048.jpg", "bubble-049.jpg", "bubble-050.jpg", 
-        "button-001.jpg", "button-002.jpg", "button-003.jpg", "button-004.jpg", "button-005.jpg", "button-006.jpg", "button-007.jpg", "button-008.jpg", "button-009.jpg", "button-010.jpg", "button-011.jpg", "button-012.jpg", "button-013.jpg", "button-014.jpg", "button-015.jpg", "button-016.jpg", "button-017.jpg", "button-018.jpg", "button-019.jpg", "button-020.jpg", "button-021.jpg", "button-022.jpg", "button-023.jpg", "button-024.jpg", "button-025.jpg", "button-026.jpg", "button-027.jpg", "button-028.jpg", "button-029.jpg", "button-030.jpg", "button-031.jpg", "button-032.jpg", "button-033.jpg", "button-034.jpg", "button-035.jpg", "button-036.jpg", 
-        "cafe-0-05.jpg", "cafe-0-06.jpg", "cafe-0-07.jpg", "cafe-0-12.jpg", "cafe-0-13.jpg", "cafe-0-14.jpg", "cafe-0-19.jpg", "cafe-0-20.jpg", "cafe-0-21.jpg", "cafe-0-26.jpg", "cafe-0-27.jpg", "cafe-0-28.jpg", "cafe-0-33.jpg", "cafe-0-34.jpg", "cafe-0-35.jpg", "cafe-0-40.jpg", "cafe-0-41.jpg", "cafe-0-42.jpg", "cafe-0-47.jpg", "cafe-0-48.jpg", "cafe-0-49.jpg", "cafe-0-54.jpg", "cafe-0-55.jpg", "cafe-0-56.jpg", "cafe-0-61.jpg", "cafe-0-62.jpg", "cafe-0-63.jpg", "cafe-0-68.jpg", "cafe-0-69.jpg", "cafe-0-70.jpg", "cafe-0-75.jpg", "cafe-0-76.jpg", "cafe-0-77.jpg", "cafe-0-82.jpg", "cafe-0-83.jpg", "cafe-0-84.jpg", "cafe-0-89.jpg", "cafe-0-90.jpg", "cafe-0-91.jpg", "cafe-0-96.jpg", "cafe-0-97.jpg", "cafe-0-98.jpg", 
-        "cafetime-0-03.jpg", "cafetime-0-04.jpg", "cafetime-0-05.jpg", "cafetime-0-10.jpg", "cafetime-0-11.jpg", "cafetime-0-12.jpg", "cafetime-0-17.jpg", "cafetime-0-18.jpg", "cafetime-0-19.jpg", "cafetime-0-24.jpg", "cafetime-0-25.jpg", "cafetime-0-26.jpg", "cafetime-0-31.jpg", "cafetime-0-32.jpg", "cafetime-0-33.jpg", "cafetime-0-45.jpg", "cafetime-0-46.jpg", "cafetime-0-47.jpg", "cafetime-0-52.jpg", "cafetime-0-53.jpg", "cafetime-0-54.jpg", "cafetime-0-59.jpg", "cafetime-0-60.jpg", "cafetime-0-61.jpg", "cafetime-0-66.jpg", "cafetime-0-67.jpg", "cafetime-0-68.jpg", "cafetime-0-73.jpg", "cafetime-0-74.jpg", "cafetime-0-75.jpg", "cafetime-0-80.jpg", "cafetime-0-81.jpg", "cafetime-0-82.jpg", "cafetime-0-87.jpg", "cafetime-0-88.jpg", "cafetime-0-89.jpg", "cafetime-0-94.jpg", "cafetime-0-95.jpg", "cafetime-0-96.jpg", 
-        "car-0-01.jpg", "car-0-02.jpg", "car-0-03.jpg", "car-0-08.jpg", "car-0-09.jpg", "car-0-10.jpg", "car-0-100.jpg", "car-0-15.jpg", "car-0-16.jpg", "car-0-17.jpg", "car-0-22.jpg", "car-0-23.jpg", "car-0-24.jpg", "car-0-29.jpg", "car-0-30.jpg", "car-0-31.jpg", "car-0-36.jpg", "car-0-37.jpg", "car-0-38.jpg", "car-0-43.jpg", "car-0-44.jpg", "car-0-45.jpg", "car-0-50.jpg", "car-0-51.jpg", "car-0-52.jpg", "car-0-57.jpg", "car-0-58.jpg", "car-0-59.jpg", "car-0-64.jpg", "car-0-65.jpg", "car-0-66.jpg", "car-0-71.jpg", "car-0-72.jpg", "car-0-73.jpg", "car-0-78.jpg", "car-0-79.jpg", "car-0-80.jpg", "car-0-85.jpg", "car-0-86.jpg", "car-0-87.jpg", "car-0-92.jpg", "car-0-93.jpg", "car-0-94.jpg", "car-0-99.jpg", 
-        "carph-001.jpg", "carph-006.jpg", "carph-007.jpg", "carph-008.jpg", "carph-020.jpg", "carph-021.jpg", "carph-022.jpg", "carph-027.jpg", "carph-028.jpg", "carph-029.jpg", "carph-034.jpg", "carph-035.jpg", "carph-036.jpg", "carph-041.jpg", "carph-042.jpg", "carph-043.jpg", "carph-048.jpg", "carph-049.jpg", "carph-050.jpg", 
-        "cats-irasuto0-05.jpg", "cats-irasuto0-06.jpg", "cats-irasuto0-07.jpg", "cats-irasuto0-12.jpg", "cats-irasuto0-13.jpg", "cats-irasuto0-14.jpg", "cats-irasuto0-19.jpg", "cats-irasuto0-20.jpg", "cats-irasuto0-21.jpg", "cats-irasuto0-26.jpg", "cats-irasuto0-27.jpg", "cats-irasuto0-28.jpg", "cats-irasuto0-33.jpg", "cats-irasuto0-34.jpg", "cats-irasuto0-35.jpg", "cats-irasuto0-47.jpg", "cats-irasuto0-48.jpg", "cats-irasuto0-49.jpg", "cats-irasuto0-54.jpg", "cats-irasuto0-55.jpg", "cats-irasuto0-56.jpg", "cats-irasuto0-61.jpg", "cats-irasuto0-62.jpg", "cats-irasuto0-63.jpg", "cats-irasuto0-68.jpg", "cats-irasuto0-69.jpg", "cats-irasuto0-70.jpg", "cats-irasuto0-75.jpg", "cats-irasuto0-76.jpg", "cats-irasuto0-77.jpg", "cats-irasuto0-82.jpg", "cats-irasuto0-83.jpg", "cats-irasuto0-84.jpg", "cats-irasuto0-89.jpg", "cats-irasuto0-90.jpg", "cats-irasuto0-91.jpg", "cats-irasuto0-96.jpg", "cats-irasuto0-97.jpg", "cats-irasuto0-98.jpg", 
-        "coffee-001.jpg", "coffee-002.jpg", "coffee-003.jpg", "coffee-004.jpg", "coffee-005.jpg", "coffee-006.jpg", "coffee-007.jpg", "coffee-008.jpg", "coffee-009.jpg", "coffee-010.jpg", "coffee-011.jpg", "coffee-012.jpg", "coffee-013.jpg", "coffee-014.jpg", "coffee-015.jpg", "coffee-016.jpg", "coffee-017.jpg", "coffee-018.jpg", "coffee-019.jpg", "coffee-020.jpg", "coffee-021.jpg", "coffee-022.jpg", "coffee-023.jpg", "coffee-024.jpg", "coffee-025.jpg", "coffee-026.jpg", "coffee-027.jpg", "coffee-028.jpg", "coffee-029.jpg", "coffee-030.jpg", "coffee-031.jpg", "coffee-032.jpg", "coffee-033.jpg", "coffee-034.jpg", "coffee-035.jpg", "coffee-036.jpg", "coffee-037.jpg", "coffee-038.jpg", "coffee-039.jpg", "coffee-040.jpg", "coffee-041.jpg", "coffee-042.jpg", "coffee-043.jpg", "coffee-044.jpg", "coffee-045.jpg", "coffee-046.jpg", "coffee-047.jpg", "coffee-048.jpg", "coffee-049.jpg", "coffee-050.jpg", 
-        "cute-0-01.jpg", "cute-0-02.jpg", "cute-0-03.jpg", "cute-0-04.jpg", "cute-0-05.jpg", "cute-0-06.jpg", "cute-0-11.jpg", "cute-0-12.jpg", "cute-0-13.jpg", "cute-0-18.jpg", "cute-0-19.jpg", "cute-0-20.jpg", "cute-0-25.jpg", "cute-0-26.jpg", "cute-0-27.jpg", "cute-0-32.jpg", "cute-0-33.jpg", "cute-0-34.jpg", "cute-0-39.jpg", "cute-0-40.jpg", "cute-0-41.jpg", "cute-0-46.jpg", "cute-0-47.jpg", "cute-0-48.jpg", "cute-0-53.jpg", "cute-0-54.jpg", "cute-0-55.jpg", "cute-0-60.jpg", "cute-0-61.jpg", "cute-0-62.jpg", "cute-0-67.jpg", "cute-0-68.jpg", "cute-0-69.jpg", "cute-0-74.jpg", "cute-0-75.jpg", "cute-0-76.jpg", "cute-0-81.jpg", "cute-0-82.jpg", "cute-0-83.jpg", "cute-0-88.jpg", "cute-0-89.jpg", "cute-0-90.jpg", "cute-0-95.jpg", "cute-0-96.jpg", "cute-0-97.jpg", 
-        "diet-0-26.jpg", "diet-0-27.jpg", "diet-0-28.jpg", "diet-0-33.jpg", "diet-0-34.jpg", "diet-0-35.jpg", "diet-0-40.jpg", "diet-0-41.jpg", "diet-0-42.jpg", "diet-0-47.jpg", "diet-0-48.jpg", "diet-0-49.jpg", "diet-0-82.jpg", "diet-0-83.jpg", "diet-0-84.jpg", "diet-0-89.jpg", "diet-0-90.jpg", "diet-0-91.jpg", "diet-0-96.jpg", "diet-0-97.jpg", "diet-0-98.jpg", 
-        "dog-0-04.jpg", "dog-0-05.jpg", "dog-0-06.jpg", "dog-0-11.jpg", "dog-0-12.jpg", "dog-0-13.jpg", "dog-0-18.jpg", "dog-0-19.jpg", "dog-0-20.jpg", "dog-0-25.jpg", "dog-0-26.jpg", "dog-0-27.jpg", "dog-0-32.jpg", "dog-0-33.jpg", "dog-0-34.jpg", "dog-0-39.jpg", "dog-0-40.jpg", "dog-0-41.jpg", "dog-0-46.jpg", "dog-0-47.jpg", "dog-0-48.jpg", "dog-0-53.jpg", "dog-0-54.jpg", "dog-0-55.jpg", "dog-0-60.jpg", "dog-0-61.jpg", "dog-0-62.jpg", "dog-0-67.jpg", "dog-0-68.jpg", "dog-0-69.jpg", "dog-0-74.jpg", "dog-0-75.jpg", "dog-0-76.jpg", "dog-0-81.jpg", "dog-0-82.jpg", "dog-0-83.jpg", "dog-0-88.jpg", "dog-0-89.jpg", "dog-0-90.jpg", "dog-0-95.jpg", "dog-0-96.jpg", "dog-0-97.jpg", 
-        "dog-cat-0-02.jpg", "dog-cat-0-03.jpg", "dog-cat-0-04.jpg", "dog-cat-0-09.jpg", "dog-cat-0-10.jpg", "dog-cat-0-11.jpg", "dog-cat-0-16.jpg", "dog-cat-0-17.jpg", "dog-cat-0-18.jpg", "dog-cat-0-23.jpg", "dog-cat-0-24.jpg", "dog-cat-0-25.jpg", "dog-cat-0-54.jpg", "dog-cat-0-55.jpg", "dog-cat-0-56.jpg", "dog-cat-0-57.jpg", "dog-cat-0-58.jpg", "dog-cat-0-59.jpg", "dog-cat-0-60.jpg", "dog-cat-0-61.jpg", "dog-cat-0-62.jpg", "dog-cat-0-63.jpg", "dog-cat-0-64.jpg", "dog-cat-0-65.jpg", "dog-cat-0-66.jpg", "dog-cat-0-67.jpg", "dog-cat-0-68.jpg", "dog-cat-0-69.jpg", "dog-cat-0-70.jpg", "dog-cat-0-71.jpg", "dog-cat-0-72.jpg", "dog-cat-0-73.jpg", "dog-cat-0-74.jpg", 
-        "drink2-0-100.jpg", "drink2-0-20.jpg", "drink2-0-21.jpg", "drink2-0-22.jpg", "drink2-0-23.jpg", "drink2-0-27.jpg", "drink2-0-28.jpg", "drink2-0-29.jpg", "drink2-0-30.jpg", "drink2-0-34.jpg", "drink2-0-35.jpg", "drink2-0-36.jpg", "drink2-0-37.jpg", "drink2-0-41.jpg", "drink2-0-42.jpg", "drink2-0-43.jpg", "drink2-0-44.jpg", "drink2-0-48.jpg", "drink2-0-49.jpg", "drink2-0-50.jpg", "drink2-0-51.jpg", "drink2-0-55.jpg", "drink2-0-56.jpg", "drink2-0-57.jpg", "drink2-0-58.jpg", "drink2-0-62.jpg", "drink2-0-63.jpg", "drink2-0-64.jpg", "drink2-0-65.jpg", "drink2-0-69.jpg", "drink2-0-70.jpg", "drink2-0-71.jpg", "drink2-0-72.jpg", "drink2-0-76.jpg", "drink2-0-77.jpg", "drink2-0-78.jpg", "drink2-0-79.jpg", "drink2-0-83.jpg", "drink2-0-84.jpg", "drink2-0-85.jpg", "drink2-0-86.jpg", "drink2-0-90.jpg", "drink2-0-91.jpg", "drink2-0-92.jpg", "drink2-0-93.jpg", "drink2-0-97.jpg", "drink2-0-98.jpg", "drink2-0-99.jpg", 
-        "drops-004.jpg", "drops-005.jpg", "drops-006.jpg", "drops-007.jpg", "drops-008.jpg", "drops-009.jpg", "drops-010.jpg", "drops-011.jpg", "drops-012.jpg", "drops-013.jpg", "drops-014.jpg", "drops-015.jpg", "drops-016.jpg", "drops-017.jpg", "drops-018.jpg", "drops-019.jpg", "drops-020.jpg", "drops-021.jpg", "drops-022.jpg", "drops-023.jpg", "drops-024.jpg", "drops-025.jpg", "drops-026.jpg", "drops-027.jpg", "drops-028.jpg", "drops-029.jpg", "drops-030.jpg", "drops-031.jpg", "drops-032.jpg", "drops-033"
-    ];
+        const questionEl = document.getElementById('question');
+        const choicesEl = document.getElementById('choices');
+        const nextBtn = document.getElementById('next-btn');
+        const resultEl = document.getElementById('result');
+        const bannerContainerEl = document.querySelector('.random-banner-container'); // コンテナを取得
 
-    const baseUrl = "https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/";
+        // --- ランダム画像リストとベースURL ---
+const images = [
+    "0-38.jpg", "0-39.jpg", "0-49.jpg", "0-50.jpg", "0-55.jpg", "0-56.jpg", "0-77.jpg", "0-78.jpg", "0-83.jpg", "0-84.jpg", 
+    "037.jpg", "038.jpg", "039.jpg", "043.jpg", "044.jpg", "045.jpg", "046.jpg", "047.jpg", 
+    "100jobs0-05.jpg", "100jobs0-06.jpg", "100jobs0-07.jpg", "100jobs0-08.jpg", "100jobs0-09.jpg", "100jobs0-10.jpg", "100jobs0-11.jpg", "100jobs0-29.jpg", "100jobs0-30.jpg", "100jobs0-31.jpg", "100jobs0-32.jpg", "100jobs0-36.jpg", "100jobs0-37.jpg", "100jobs0-38.jpg", "100jobs0-39.jpg", "100jobs0-66.jpg", "100jobs0-67.jpg", "100jobs0-73.jpg", "100jobs0-74.jpg", 
+    "650.jpg", "651.jpg", "652.jpg", "653.jpg", "654.jpg", "655.jpg", "656.jpg", "657.jpg", "658.jpg", "659.jpg", "660.jpg", "661.jpg", "662.jpg", "663.jpg", "664.jpg", "665.jpg", "666.jpg", "667.jpg", "668.jpg", "669.jpg", "670.jpg", "671.jpg", "672.jpg", "673.jpg", "674.jpg", "675.jpg", "676.jpg", "677.jpg", "678.jpg", "679.jpg", "680.jpg", "681.jpg", "682.jpg", "683.jpg", "684.jpg", "685.jpg", "686.jpg", "687.jpg", "688.jpg", "689.jpg", "690.jpg", "691.jpg", "692.jpg", "693.jpg", "694.jpg", "695.jpg", "696.jpg", "697.jpg", "698.jpg", "699.jpg", "700.jpg", "701.jpg", "702.jpg", "703.jpg", "704.jpg", "705.jpg", "706.jpg", "707.jpg", "708.jpg", "709.jpg", "710.jpg", "711.jpg", "712.jpg", "713.jpg", "714.jpg", "715.jpg", "716.jpg", "717.jpg", "718.jpg", "719.jpg", "720.jpg", "721.jpg", "722.jpg", "723.jpg", "724.jpg", "725.jpg", "726.jpg", "727.jpg", "728.jpg", "729.jpg", "730.jpg", "731.jpg", "732.jpg", "733.jpg", "734.jpg", "735.jpg", "736.jpg", "737.jpg", "738.jpg", "739.jpg", "740.jpg", "741.jpg", "742.jpg", "743.jpg", "744.jpg", "745.jpg", 
+    "Fleamarket-0-01.jpg", "Fleamarket-0-02.jpg", "Fleamarket-0-03.jpg", "Fleamarket-0-04.jpg", "Fleamarket-0-05.jpg", "Fleamarket-0-06.jpg", "Fleamarket-0-100.jpg", "Fleamarket-0-42.jpg", "Fleamarket-0-43.jpg", "Fleamarket-0-44.jpg", "Fleamarket-0-49.jpg", "Fleamarket-0-50.jpg", "Fleamarket-0-51.jpg", "Fleamarket-0-56.jpg", "Fleamarket-0-57.jpg", "Fleamarket-0-58.jpg", "Fleamarket-0-63.jpg", "Fleamarket-0-64.jpg", "Fleamarket-0-65.jpg", "Fleamarket-0-70.jpg", "Fleamarket-0-71.jpg", "Fleamarket-0-72.jpg", "Fleamarket-0-77.jpg", "Fleamarket-0-78.jpg", "Fleamarket-0-79.jpg", "Fleamarket-0-84.jpg", "Fleamarket-0-85.jpg", "Fleamarket-0-86.jpg", "Fleamarket-0-91.jpg", "Fleamarket-0-92.jpg", "Fleamarket-0-93.jpg", "Fleamarket-0-98.jpg", "Fleamarket-0-99.jpg", 
+    "agean-001.jpg", "agean-002.jpg", "agean-003.jpg", "agean-004.jpg", "agean-005.jpg", "agean-006.jpg", "agean-007.jpg", "agean-008.jpg", "agean-009.jpg", "agean-010.jpg", "agean-011.jpg", "agean-012.jpg", "agean-013.jpg", "agean-014.jpg", "agean-015.jpg", "agean-016.jpg", "agean-017.jpg", "agean-018.jpg", "agean-019.jpg", "agean-020.jpg", "agean-021.jpg", "agean-022.jpg", "agean-023.jpg", "agean-024.jpg", "agean-025.jpg", "agean-026.jpg", "agean-027.jpg", "agean-028.jpg", "agean-029.jpg", "agean-030.jpg", "agean-031.jpg", "agean-032.jpg", "agean-033.jpg", "agean-034.jpg", "agean-035.jpg", "agean-036.jpg", "agean-037.jpg", "agean-038.jpg", "agean-039.jpg", "agean-040.jpg", "agean-041.jpg", "agean-042.jpg", "agean-043.jpg", "agean-044.jpg", "agean-045.jpg", "agean-046.jpg", "agean-047.jpg", "agean-048.jpg", "agean-049.jpg", "agean-050.jpg", "agean-051.jpg", "agean-052.jpg", "agean-053.jpg", "agean-054.jpg", "agean-055.jpg", "agean-056.jpg", "agean-057.jpg", "agean-058.jpg", 
+    "alphabet-0-06.jpg", "alphabet-0-07.jpg", "alphabet-0-08.jpg", "alphabet-0-09.jpg", "alphabet-0-10.jpg", "alphabet-0-11.jpg", "alphabet-0-12.jpg", "alphabet-0-13.jpg", "alphabet-0-14.jpg", "alphabet-0-15.jpg", "alphabet-0-16.jpg", "alphabet-0-17.jpg", "alphabet-0-18.jpg", "alphabet-0-19.jpg", "alphabet-0-20.jpg", "alphabet-0-21.jpg", "alphabet-0-22.jpg", "alphabet-0-23.jpg", "alphabet-0-24.jpg", "alphabet-0-25.jpg", "alphabet-0-26.jpg", "alphabet-0-72.jpg", "alphabet-0-73.jpg", "alphabet-0-79.jpg", "alphabet-0-80.jpg", "alphabet-0-86.jpg", "alphabet-0-87.jpg", "alphabet-0-93.jpg", "alphabet-0-94.jpg", 
+    "animal-cha-0-100.jpg", "animal-cha-0-16.jpg", "animal-cha-0-17.jpg", "animal-cha-0-23.jpg", "animal-cha-0-24.jpg", "animal-cha-0-32.jpg", "animal-cha-0-33.jpg", "animal-cha-0-34.jpg", "animal-cha-0-35.jpg", "animal-cha-0-39.jpg", "animal-cha-0-40.jpg", "animal-cha-0-41.jpg", "animal-cha-0-42.jpg", "animal-cha-0-64.jpg", "animal-cha-0-65.jpg", "animal-cha-0-66.jpg", "animal-cha-0-71.jpg", "animal-cha-0-72.jpg", "animal-cha-0-73.jpg", "animal-cha-0-78.jpg", "animal-cha-0-79.jpg", "animal-cha-0-80.jpg", "animal-cha-0-85.jpg", "animal-cha-0-86.jpg", "animal-cha-0-87.jpg", "animal-cha-0-98.jpg", "animal-cha-0-99.jpg", 
+    "animals-0-05.jpg", "animals-0-06.jpg", "animals-0-07.jpg", "animals-0-08.jpg", "animals-0-100.jpg", "animals-0-12.jpg", "animals-0-13.jpg", "animals-0-14.jpg", "animals-0-15.jpg", "animals-0-19.jpg", "animals-0-20.jpg", "animals-0-21.jpg", "animals-0-22.jpg", "animals-0-26.jpg", "animals-0-27.jpg", "animals-0-28.jpg", "animals-0-29.jpg", "animals-0-41.jpg", "animals-0-42.jpg", "animals-0-43.jpg", "animals-0-48.jpg", "animals-0-49.jpg", "animals-0-50.jpg", "animals-0-55.jpg", "animals-0-56.jpg", "animals-0-57.jpg", "animals-0-62.jpg", "animals-0-63.jpg", "animals-0-64.jpg", "animals-0-86.jpg", "animals-0-87.jpg", "animals-0-88.jpg", "animals-0-89.jpg", "animals-0-93.jpg", "animals-0-94.jpg", "animals-0-95.jpg", "animals-0-96.jpg", 
+    "aqua-0-01.jpg", "aqua-0-02.jpg", "aqua-0-03.jpg", "aqua-0-24.jpg", "aqua-0-25.jpg", "aqua-0-26.jpg", "aqua-0-27.jpg", "aqua-0-31.jpg", "aqua-0-32.jpg", "aqua-0-33.jpg", "aqua-0-34.jpg", "aqua-0-38.jpg", "aqua-0-39.jpg", "aqua-0-40.jpg", "aqua-0-41.jpg", "aqua-0-45.jpg", "aqua-0-46.jpg", "aqua-0-47.jpg", "aqua-0-48.jpg", "aqua-0-52.jpg", "aqua-0-53.jpg", "aqua-0-54.jpg", "aqua-0-55.jpg", "aqua-0-59.jpg", "aqua-0-60.jpg", "aqua-0-61.jpg", "aqua-0-62.jpg", "aqua-0-66.jpg", "aqua-0-67.jpg", "aqua-0-68.jpg", "aqua-0-69.jpg", "aqua-0-73.jpg", "aqua-0-74.jpg", "aqua-0-75.jpg", "aqua-0-76.jpg", "aqua-0-80.jpg", "aqua-0-81.jpg", "aqua-0-82.jpg", "aqua-0-83.jpg", "aqua-0-87.jpg", "aqua-0-88.jpg", "aqua-0-89.jpg", "aqua-0-90.jpg", "aqua-0-94.jpg", "aqua-0-95.jpg", "aqua-0-96.jpg", "aqua-0-97.jpg", 
+    "aroma-0-37.jpg", "aroma-0-38.jpg", "aroma-0-39.jpg", "aroma-0-44.jpg", "aroma-0-45.jpg", "aroma-0-46.jpg", "aroma-0-51.jpg", "aroma-0-52.jpg", "aroma-0-53.jpg", "aroma-0-58.jpg", "aroma-0-59.jpg", "aroma-0-60.jpg", 
+    "balloon-007.jpg", "balloon-008.jpg", "balloon-009.jpg", "balloon-014.jpg", "balloon-015.jpg", "balloon-016.jpg", "balloon-021.jpg", "balloon-022.jpg", "balloon-023.jpg", "balloon-028.jpg", "balloon-029.jpg", "balloon-030.jpg", "balloon-035.jpg", "balloon-036.jpg", "balloon-037.jpg", "balloon-042.jpg", "balloon-043.jpg", "balloon-044.jpg", "balloon-049.jpg", "balloon-050.jpg", 
+    "bath-time-0-01.jpg", "bath-time-0-06.jpg", "bath-time-0-07.jpg", "bath-time-0-08.jpg", "bath-time-0-100.jpg", "bath-time-0-13.jpg", "bath-time-0-14.jpg", "bath-time-0-15.jpg", "bath-time-0-20.jpg", "bath-time-0-21.jpg", "bath-time-0-22.jpg", "bath-time-0-27.jpg", "bath-time-0-28.jpg", "bath-time-0-29.jpg", "bath-time-0-34.jpg", "bath-time-0-35.jpg", "bath-time-0-36.jpg", "bath-time-0-41.jpg", "bath-time-0-42.jpg", "bath-time-0-43.jpg", "bath-time-0-48.jpg", "bath-time-0-49.jpg", "bath-time-0-50.jpg", "bath-time-0-55.jpg", "bath-time-0-56.jpg", "bath-time-0-57.jpg", "bath-time-0-62.jpg", "bath-time-0-63.jpg", "bath-time-0-64.jpg", "bath-time-0-69.jpg", "bath-time-0-70.jpg", "bath-time-0-71.jpg", "bath-time-0-86.jpg", "bath-time-0-87.jpg", "bath-time-0-88.jpg", "bath-time-0-93.jpg", "bath-time-0-94.jpg", "bath-time-0-95.jpg", 
+    "beer-001.jpg", "beer-002.jpg", "beer-014.jpg", "beer-015.jpg", "beer-016.jpg", "beer-017.jpg", "beer-018.jpg", "beer-019.jpg", "beer-020.jpg", "beer-021.jpg", "beer-022.jpg", "beer-023.jpg", "beer-024.jpg", "beer-025.jpg", "beer-026.jpg", "beer-027.jpg", "beer-028.jpg", "beer-029.jpg", "beer-030.jpg", "beer-031.jpg", "beer-032.jpg", "beer-033.jpg", "beer-034.jpg", "beer-035.jpg", "beer-036.jpg", "beer-037.jpg", "beer-038.jpg", "beer-039.jpg", "beer-040.jpg", "beer-041.jpg", "beer-042.jpg", "beer-043.jpg", "beer-044.jpg", "beer-045.jpg", "beer-046.jpg", "beer-047.jpg", "beer-048.jpg", 
+    "birthday-006.jpg", "birthday-007.jpg", "birthday-008.jpg", "birthday-009.jpg", "birthday-010.jpg", "birthday-011.jpg", "birthday-012.jpg", "birthday-013.jpg", "birthday-014.jpg", "birthday-015.jpg", "birthday-016.jpg", "birthday-017.jpg", "birthday-018.jpg", "birthday-019.jpg", "birthday-020.jpg", "birthday-021.jpg", "birthday-022.jpg", "birthday-023.jpg", "birthday-024.jpg", "birthday-025.jpg", "birthday-026.jpg", "birthday-027.jpg", "birthday-028.jpg", "birthday-029.jpg", "birthday-030.jpg", "birthday-031.jpg", "birthday-032.jpg", "birthday-033.jpg", "birthday-034.jpg", "birthday-035.jpg", "birthday-036.jpg", "birthday-037.jpg", "birthday-038.jpg", "birthday-039.jpg", "birthday-040.jpg", "birthday-041.jpg", "birthday-042.jpg", "birthday-043.jpg", "birthday-044.jpg", "birthday-045.jpg", "birthday-046.jpg", "birthday-047.jpg", "birthday-048.jpg", 
+    "book-001.jpg", "book-002.jpg", "book-003.jpg", "book-004.jpg", "book-005.jpg", "book-006.jpg", "book-007.jpg", "book-008.jpg", "book-009.jpg", "book-010.jpg", "book-011.jpg", "book-012.jpg", "book-013.jpg", "book-014.jpg", "book-015.jpg", "book-016.jpg", "book-017.jpg", "book-018.jpg", "book-019.jpg", "book-020.jpg", "book-021.jpg", "book-022.jpg", "book-023.jpg", "book-024.jpg", "book-025.jpg", "book-026.jpg", "book-027.jpg", "book-028.jpg", "book-029.jpg", "book-030.jpg", "book-031.jpg", "book-032.jpg", "book-033.jpg", "book-034.jpg", "book-035.jpg", "book-036.jpg", "book-037.jpg", "book-038.jpg", "book-039.jpg", "book-040.jpg", "book-041.jpg", "book-042.jpg", "book-043.jpg", "book-044.jpg", "book-045.jpg", "book-046.jpg", "book-047.jpg", "book-048.jpg", 
+    "breadi-0-03.jpg", "breadi-0-04.jpg", "breadi-0-05.jpg", "breadi-0-10.jpg", "breadi-0-11.jpg", "breadi-0-12.jpg", "breadi-0-17.jpg", "breadi-0-18.jpg", "breadi-0-19.jpg", "breadi-0-24.jpg", "breadi-0-25.jpg", "breadi-0-26.jpg", "breadi-0-31.jpg", "breadi-0-32.jpg", "breadi-0-33.jpg", "breadi-0-38.jpg", "breadi-0-39.jpg", "breadi-0-40.jpg", "breadi-0-45.jpg", "breadi-0-46.jpg", "breadi-0-47.jpg", "breadi-0-52.jpg", "breadi-0-53.jpg", "breadi-0-54.jpg", "breadi-0-59.jpg", "breadi-0-60.jpg", "breadi-0-61.jpg", "breadi-0-66.jpg", "breadi-0-67.jpg", "breadi-0-68.jpg", "breadi-0-73.jpg", "breadi-0-74.jpg", "breadi-0-75.jpg", "breadi-0-80.jpg", "breadi-0-81.jpg", "breadi-0-82.jpg", "breadi-0-87.jpg", "breadi-0-88.jpg", "breadi-0-89.jpg", "breadi-0-94.jpg", "breadi-0-95.jpg", "breadi-0-96.jpg", 
+    "breadph-025.jpg", "breadph-026.jpg", "breadph-027.jpg", "breadph-028.jpg", "breadph-029.jpg", "breadph-030.jpg", "breadph-031.jpg", "breadph-032.jpg", "breadph-033.jpg", "breadph-034.jpg", "breadph-035.jpg", "breadph-036.jpg", "breadph-037.jpg", "breadph-038.jpg", "breadph-039.jpg", "breadph-040.jpg", "breadph-041.jpg", "breadph-042.jpg", "breadph-043.jpg", "breadph-044.jpg", "breadph-045.jpg", "breadph-046.jpg", "breadph-047.jpg", "breadph-048.jpg", "breadph-049.jpg", "breadph-050.jpg", 
+    "bubble-001.jpg", "bubble-002.jpg", "bubble-003.jpg", "bubble-004.jpg", "bubble-005.jpg", "bubble-006.jpg", "bubble-007.jpg", "bubble-008.jpg", "bubble-009.jpg", "bubble-010.jpg", "bubble-011.jpg", "bubble-012.jpg", "bubble-013.jpg", "bubble-014.jpg", "bubble-015.jpg", "bubble-016.jpg", "bubble-017.jpg", "bubble-018.jpg", "bubble-019.jpg", "bubble-020.jpg", "bubble-021.jpg", "bubble-022.jpg", "bubble-023.jpg", "bubble-024.jpg", "bubble-025.jpg", "bubble-026.jpg", "bubble-027.jpg", "bubble-028.jpg", "bubble-029.jpg", "bubble-030.jpg", "bubble-031.jpg", "bubble-032.jpg", "bubble-033.jpg", "bubble-034.jpg", "bubble-035.jpg", "bubble-036.jpg", "bubble-037.jpg", "bubble-038.jpg", "bubble-039.jpg", "bubble-040.jpg", "bubble-041.jpg", "bubble-042.jpg", "bubble-043.jpg", "bubble-044.jpg", "bubble-045.jpg", "bubble-046.jpg", "bubble-047.jpg", "bubble-048.jpg", "bubble-049.jpg", "bubble-050.jpg", 
+    "button-001.jpg", "button-002.jpg", "button-003.jpg", "button-004.jpg", "button-005.jpg", "button-006.jpg", "button-007.jpg", "button-008.jpg", "button-009.jpg", "button-010.jpg", "button-011.jpg", "button-012.jpg", "button-013.jpg", "button-014.jpg", "button-015.jpg", "button-016.jpg", "button-017.jpg", "button-018.jpg", "button-019.jpg", "button-020.jpg", "button-021.jpg", "button-022.jpg", "button-023.jpg", "button-024.jpg", "button-025.jpg", "button-026.jpg", "button-027.jpg", "button-028.jpg", "button-029.jpg", "button-030.jpg", "button-031.jpg", "button-032.jpg", "button-033.jpg", "button-034.jpg", "button-035.jpg", "button-036.jpg", 
+    "cafe-0-05.jpg", "cafe-0-06.jpg", "cafe-0-07.jpg", "cafe-0-12.jpg", "cafe-0-13.jpg", "cafe-0-14.jpg", "cafe-0-19.jpg", "cafe-0-20.jpg", "cafe-0-21.jpg", "cafe-0-26.jpg", "cafe-0-27.jpg", "cafe-0-28.jpg", "cafe-0-33.jpg", "cafe-0-34.jpg", "cafe-0-35.jpg", "cafe-0-40.jpg", "cafe-0-41.jpg", "cafe-0-42.jpg", "cafe-0-47.jpg", "cafe-0-48.jpg", "cafe-0-49.jpg", "cafe-0-54.jpg", "cafe-0-55.jpg", "cafe-0-56.jpg", "cafe-0-61.jpg", "cafe-0-62.jpg", "cafe-0-63.jpg", "cafe-0-68.jpg", "cafe-0-69.jpg", "cafe-0-70.jpg", "cafe-0-75.jpg", "cafe-0-76.jpg", "cafe-0-77.jpg", "cafe-0-82.jpg", "cafe-0-83.jpg", "cafe-0-84.jpg", "cafe-0-89.jpg", "cafe-0-90.jpg", "cafe-0-91.jpg", "cafe-0-96.jpg", "cafe-0-97.jpg", "cafe-0-98.jpg", 
+    "cafetime-0-03.jpg", "cafetime-0-04.jpg", "cafetime-0-05.jpg", "cafetime-0-10.jpg", "cafetime-0-11.jpg", "cafetime-0-12.jpg", "cafetime-0-17.jpg", "cafetime-0-18.jpg", "cafetime-0-19.jpg", "cafetime-0-24.jpg", "cafetime-0-25.jpg", "cafetime-0-26.jpg", "cafetime-0-31.jpg", "cafetime-0-32.jpg", "cafetime-0-33.jpg", "cafetime-0-45.jpg", "cafetime-0-46.jpg", "cafetime-0-47.jpg", "cafetime-0-52.jpg", "cafetime-0-53.jpg", "cafetime-0-54.jpg", "cafetime-0-59.jpg", "cafetime-0-60.jpg", "cafetime-0-61.jpg", "cafetime-0-66.jpg", "cafetime-0-67.jpg", "cafetime-0-68.jpg", "cafetime-0-73.jpg", "cafetime-0-74.jpg", "cafetime-0-75.jpg", "cafetime-0-80.jpg", "cafetime-0-81.jpg", "cafetime-0-82.jpg", "cafetime-0-87.jpg", "cafetime-0-88.jpg", "cafetime-0-89.jpg", "cafetime-0-94.jpg", "cafetime-0-95.jpg", "cafetime-0-96.jpg", 
+    "car-0-01.jpg", "car-0-02.jpg", "car-0-03.jpg", "car-0-08.jpg", "car-0-09.jpg", "car-0-10.jpg", "car-0-100.jpg", "car-0-15.jpg", "car-0-16.jpg", "car-0-17.jpg", "car-0-22.jpg", "car-0-23.jpg", "car-0-24.jpg", "car-0-29.jpg", "car-0-30.jpg", "car-0-31.jpg", "car-0-36.jpg", "car-0-37.jpg", "car-0-38.jpg", "car-0-43.jpg", "car-0-44.jpg", "car-0-45.jpg", "car-0-50.jpg", "car-0-51.jpg", "car-0-52.jpg", "car-0-57.jpg", "car-0-58.jpg", "car-0-59.jpg", "car-0-64.jpg", "car-0-65.jpg", "car-0-66.jpg", "car-0-71.jpg", "car-0-72.jpg", "car-0-73.jpg", "car-0-78.jpg", "car-0-79.jpg", "car-0-80.jpg", "car-0-85.jpg", "car-0-86.jpg", "car-0-87.jpg", "car-0-92.jpg", "car-0-93.jpg", "car-0-94.jpg", "car-0-99.jpg", 
+    "carph-001.jpg", "carph-006.jpg", "carph-007.jpg", "carph-008.jpg", "carph-020.jpg", "carph-021.jpg", "carph-022.jpg", "carph-027.jpg", "carph-028.jpg", "carph-029.jpg", "carph-034.jpg", "carph-035.jpg", "carph-036.jpg", "carph-041.jpg", "carph-042.jpg", "carph-043.jpg", "carph-048.jpg", "carph-049.jpg", "carph-050.jpg", 
+    "cats-irasuto0-05.jpg", "cats-irasuto0-06.jpg", "cats-irasuto0-07.jpg", "cats-irasuto0-12.jpg", "cats-irasuto0-13.jpg", "cats-irasuto0-14.jpg", "cats-irasuto0-19.jpg", "cats-irasuto0-20.jpg", "cats-irasuto0-21.jpg", "cats-irasuto0-26.jpg", "cats-irasuto0-27.jpg", "cats-irasuto0-28.jpg", "cats-irasuto0-33.jpg", "cats-irasuto0-34.jpg", "cats-irasuto0-35.jpg", "cats-irasuto0-47.jpg", "cats-irasuto0-48.jpg", "cats-irasuto0-49.jpg", "cats-irasuto0-54.jpg", "cats-irasuto0-55.jpg", "cats-irasuto0-56.jpg", "cats-irasuto0-61.jpg", "cats-irasuto0-62.jpg", "cats-irasuto0-63.jpg", "cats-irasuto0-68.jpg", "cats-irasuto0-69.jpg", "cats-irasuto0-70.jpg", "cats-irasuto0-75.jpg", "cats-irasuto0-76.jpg", "cats-irasuto0-77.jpg", "cats-irasuto0-82.jpg", "cats-irasuto0-83.jpg", "cats-irasuto0-84.jpg", "cats-irasuto0-89.jpg", "cats-irasuto0-90.jpg", "cats-irasuto0-91.jpg", "cats-irasuto0-96.jpg", "cats-irasuto0-97.jpg", "cats-irasuto0-98.jpg", 
+    "coffee-001.jpg", "coffee-002.jpg", "coffee-003.jpg", "coffee-004.jpg", "coffee-005.jpg", "coffee-006.jpg", "coffee-007.jpg", "coffee-008.jpg", "coffee-009.jpg", "coffee-010.jpg", "coffee-011.jpg", "coffee-012.jpg", "coffee-013.jpg", "coffee-014.jpg", "coffee-015.jpg", "coffee-016.jpg", "coffee-017.jpg", "coffee-018.jpg", "coffee-019.jpg", "coffee-020.jpg", "coffee-021.jpg", "coffee-022.jpg", "coffee-023.jpg", "coffee-024.jpg", "coffee-025.jpg", "coffee-026.jpg", "coffee-027.jpg", "coffee-028.jpg", "coffee-029.jpg", "coffee-030.jpg", "coffee-031.jpg", "coffee-032.jpg", "coffee-033.jpg", "coffee-034.jpg", "coffee-035.jpg", "coffee-036.jpg", "coffee-037.jpg", "coffee-038.jpg", "coffee-039.jpg", "coffee-040.jpg", "coffee-041.jpg", "coffee-042.jpg", "coffee-043.jpg", "coffee-044.jpg", "coffee-045.jpg", "coffee-046.jpg", "coffee-047.jpg", "coffee-048.jpg", "coffee-049.jpg", "coffee-050.jpg", 
+    "cute-0-01.jpg", "cute-0-02.jpg", "cute-0-03.jpg", "cute-0-04.jpg", "cute-0-05.jpg", "cute-0-06.jpg", "cute-0-11.jpg", "cute-0-12.jpg", "cute-0-13.jpg", "cute-0-18.jpg", "cute-0-19.jpg", "cute-0-20.jpg", "cute-0-25.jpg", "cute-0-26.jpg", "cute-0-27.jpg", "cute-0-32.jpg", "cute-0-33.jpg", "cute-0-34.jpg", "cute-0-39.jpg", "cute-0-40.jpg", "cute-0-41.jpg", "cute-0-46.jpg", "cute-0-47.jpg", "cute-0-48.jpg", "cute-0-53.jpg", "cute-0-54.jpg", "cute-0-55.jpg", "cute-0-60.jpg", "cute-0-61.jpg", "cute-0-62.jpg", "cute-0-67.jpg", "cute-0-68.jpg", "cute-0-69.jpg", "cute-0-74.jpg", "cute-0-75.jpg", "cute-0-76.jpg", "cute-0-81.jpg", "cute-0-82.jpg", "cute-0-83.jpg", "cute-0-88.jpg", "cute-0-89.jpg", "cute-0-90.jpg", "cute-0-95.jpg", "cute-0-96.jpg", "cute-0-97.jpg", 
+    "diet-0-26.jpg", "diet-0-27.jpg", "diet-0-28.jpg", "diet-0-33.jpg", "diet-0-34.jpg", "diet-0-35.jpg", "diet-0-40.jpg", "diet-0-41.jpg", "diet-0-42.jpg", "diet-0-47.jpg", "diet-0-48.jpg", "diet-0-49.jpg", "diet-0-82.jpg", "diet-0-83.jpg", "diet-0-84.jpg", "diet-0-89.jpg", "diet-0-90.jpg", "diet-0-91.jpg", "diet-0-96.jpg", "diet-0-97.jpg", "diet-0-98.jpg", 
+    "dog-0-04.jpg", "dog-0-05.jpg", "dog-0-06.jpg", "dog-0-11.jpg", "dog-0-12.jpg", "dog-0-13.jpg", "dog-0-18.jpg", "dog-0-19.jpg", "dog-0-20.jpg", "dog-0-25.jpg", "dog-0-26.jpg", "dog-0-27.jpg", "dog-0-32.jpg", "dog-0-33.jpg", "dog-0-34.jpg", "dog-0-39.jpg", "dog-0-40.jpg", "dog-0-41.jpg", "dog-0-46.jpg", "dog-0-47.jpg", "dog-0-48.jpg", "dog-0-53.jpg", "dog-0-54.jpg", "dog-0-55.jpg", "dog-0-60.jpg", "dog-0-61.jpg", "dog-0-62.jpg", "dog-0-67.jpg", "dog-0-68.jpg", "dog-0-69.jpg", "dog-0-74.jpg", "dog-0-75.jpg", "dog-0-76.jpg", "dog-0-81.jpg", "dog-0-82.jpg", "dog-0-83.jpg", "dog-0-88.jpg", "dog-0-89.jpg", "dog-0-90.jpg", "dog-0-95.jpg", "dog-0-96.jpg", "dog-0-97.jpg", 
+    "dog-cat-0-02.jpg", "dog-cat-0-03.jpg", "dog-cat-0-04.jpg", "dog-cat-0-09.jpg", "dog-cat-0-10.jpg", "dog-cat-0-11.jpg", "dog-cat-0-16.jpg", "dog-cat-0-17.jpg", "dog-cat-0-18.jpg", "dog-cat-0-23.jpg", "dog-cat-0-24.jpg", "dog-cat-0-25.jpg", "dog-cat-0-54.jpg", "dog-cat-0-55.jpg", "dog-cat-0-56.jpg", "dog-cat-0-57.jpg", "dog-cat-0-58.jpg", "dog-cat-0-59.jpg", "dog-cat-0-60.jpg", "dog-cat-0-61.jpg", "dog-cat-0-62.jpg", "dog-cat-0-63.jpg", "dog-cat-0-64.jpg", "dog-cat-0-65.jpg", "dog-cat-0-66.jpg", "dog-cat-0-67.jpg", "dog-cat-0-68.jpg", "dog-cat-0-69.jpg", "dog-cat-0-70.jpg", "dog-cat-0-71.jpg", "dog-cat-0-72.jpg", "dog-cat-0-73.jpg", "dog-cat-0-74.jpg", 
+    "drink2-0-100.jpg", "drink2-0-20.jpg", "drink2-0-21.jpg", "drink2-0-22.jpg", "drink2-0-23.jpg", "drink2-0-27.jpg", "drink2-0-28.jpg", "drink2-0-29.jpg", "drink2-0-30.jpg", "drink2-0-34.jpg", "drink2-0-35.jpg", "drink2-0-36.jpg", "drink2-0-37.jpg", "drink2-0-41.jpg", "drink2-0-42.jpg", "drink2-0-43.jpg", "drink2-0-44.jpg", "drink2-0-48.jpg", "drink2-0-49.jpg", "drink2-0-50.jpg", "drink2-0-51.jpg", "drink2-0-55.jpg", "drink2-0-56.jpg", "drink2-0-57.jpg", "drink2-0-58.jpg", "drink2-0-62.jpg", "drink2-0-63.jpg", "drink2-0-64.jpg", "drink2-0-65.jpg", "drink2-0-69.jpg", "drink2-0-70.jpg", "drink2-0-71.jpg", "drink2-0-72.jpg", "drink2-0-76.jpg", "drink2-0-77.jpg", "drink2-0-78.jpg", "drink2-0-79.jpg", "drink2-0-83.jpg", "drink2-0-84.jpg", "drink2-0-85.jpg", "drink2-0-86.jpg", "drink2-0-90.jpg", "drink2-0-91.jpg", "drink2-0-92.jpg", "drink2-0-93.jpg", "drink2-0-97.jpg", "drink2-0-98.jpg", "drink2-0-99.jpg", 
+    "drops-004.jpg", "drops-005.jpg", "drops-006.jpg", "drops-007.jpg", "drops-008.jpg", "drops-009.jpg", "drops-010.jpg", "drops-011.jpg", "drops-012.jpg", "drops-013.jpg", "drops-014.jpg", "drops-015.jpg", "drops-016.jpg", "drops-017.jpg", "drops-018.jpg", "drops-019.jpg", "drops-020.jpg", "drops-021.jpg", "drops-022.jpg", "drops-023.jpg", "drops-024.jpg", "drops-025.jpg", "drops-026.jpg", "drops-027.jpg", "drops-028.jpg", "drops-029.jpg", "drops-030.jpg", "drops-031.jpg", "drops-032.jpg", "drops-033.jpg", "drops-034.jpg", "drops-035.jpg", "drops-036.jpg", "drops-037.jpg", "drops-038.jpg", "drops-039.jpg", "drops-040.jpg", "drops-041.jpg", "drops-042.jpg", "drops-043.jpg", "drops-044.jpg", "drops-045.jpg", "drops-046.jpg", "drops-047.jpg", "drops-048.jpg", "drops-049.jpg", "drops-050.jpg", 
+    "egg-001.jpg", "egg-002.jpg", "egg-003.jpg", "egg-004.jpg", "egg-005.jpg", "egg-006.jpg", "egg-007.jpg", "egg-008.jpg", "egg-009.jpg", "egg-010.jpg", "egg-011.jpg", "egg-012.jpg", "egg-013.jpg", "egg-014.jpg", "egg-015.jpg", "egg-016.jpg", "egg-017.jpg", "egg-018.jpg", "egg-019.jpg", "egg-020.jpg", "egg-021.jpg", "egg-022.jpg", "egg-023.jpg", "egg-024.jpg", "egg-025.jpg", "egg-026.jpg", "egg-027.jpg", "egg-028.jpg", "egg-029.jpg", "egg-030.jpg", "egg-031.jpg", "egg-032.jpg", "egg-033.jpg", "egg-034.jpg", "egg-035.jpg", "egg-036.jpg", "egg-037.jpg", "egg-038.jpg", "egg-039.jpg", "egg-040.jpg", "egg-041.jpg", "egg-042.jpg", "egg-043.jpg", "egg-044.jpg", "egg-045.jpg", "egg-046.jpg", "egg-047.jpg", "egg-048.jpg", "egg-049.jpg", "egg-050.jpg", 
+    "electronics-0-01.jpg", "electronics-0-02.jpg", "electronics-0-03.jpg", "electronics-0-04.jpg", "electronics-0-05.jpg", "electronics-0-06.jpg", "electronics-0-07.jpg", "electronics-0-08.jpg", "electronics-0-13.jpg", "electronics-0-14.jpg", "electronics-0-15.jpg", "electronics-0-20.jpg", "electronics-0-21.jpg", "electronics-0-22.jpg", "electronics-0-27.jpg", "electronics-0-28.jpg", "electronics-0-29.jpg", "electronics-0-34.jpg", "electronics-0-35.jpg", "electronics-0-36.jpg", "electronics-0-41.jpg", "electronics-0-42.jpg", "electronics-0-43.jpg", "electronics-0-48.jpg", "electronics-0-49.jpg", "electronics-0-50.jpg", "electronics-0-55.jpg", "electronics-0-56.jpg", "electronics-0-57.jpg", "electronics-0-62.jpg", "electronics-0-63.jpg", "electronics-0-64.jpg", "electronics-0-69.jpg", "electronics-0-70.jpg", "electronics-0-71.jpg", "electronics-0-76.jpg", "electronics-0-77.jpg", "electronics-0-78.jpg", "electronics-0-83.jpg", "electronics-0-84.jpg", "electronics-0-85.jpg", "electronics-0-90.jpg", "electronics-0-91.jpg", "electronics-0-92.jpg", "electronics-0-97.jpg", "electronics-0-98.jpg", "electronics-0-99.jpg", 
+    "fairytaler-007.jpg", "fairytaler-008.jpg", "fairytaler-009.jpg", "fairytaler-014.jpg", "fairytaler-015.jpg", "fairytaler-016.jpg", "fairytaler-021.jpg", "fairytaler-022.jpg", "fairytaler-023.jpg", "fairytaler-028.jpg", "fairytaler-029.jpg", "fairytaler-030.jpg", "fairytaler-035.jpg", "fairytaler-036.jpg", "fairytaler-037.jpg", "fairytaler-042.jpg", "fairytaler-043.jpg", "fairytaler-044.jpg", "fairytaler-049.jpg", "fairytaler-050.jpg", 
+    "fairytaler2-006.jpg", "fairytaler2-007.jpg", "fairytaler2-008.jpg", "fairytaler2-013.jpg", "fairytaler2-014.jpg", "fairytaler2-015.jpg", "fairytaler2-020.jpg", "fairytaler2-021.jpg", "fairytaler2-022.jpg", "fairytaler2-027.jpg", "fairytaler2-028.jpg", "fairytaler2-029.jpg", "fairytaler2-034.jpg", "fairytaler2-035.jpg", "fairytaler2-036.jpg", "fairytaler2-041.jpg", "fairytaler2-042.jpg", "fairytaler2-043.jpg", "fairytaler2-048.jpg", "fairytaler2-049.jpg", "fairytaler2-050.jpg", 
+    "farmland-001.jpg", "farmland-006.jpg", "farmland-007.jpg", "farmland-008.jpg", "farmland-013.jpg", "farmland-014.jpg", "farmland-015.jpg", "farmland-020.jpg", "farmland-021.jpg", "farmland-022.jpg", "farmland-027.jpg", "farmland-028.jpg", "farmland-029.jpg", "farmland-034.jpg", "farmland-035.jpg", "farmland-036.jpg", "farmland-041.jpg", "farmland-042.jpg", "farmland-043.jpg", "farmland-048.jpg", "farmland-049.jpg", "farmland-050.jpg", 
+    "finger-001.jpg", "finger-002.jpg", "finger-003.jpg", "finger-004.jpg", "finger-005.jpg", "finger-006.jpg", "finger-007.jpg", "finger-008.jpg", "finger-009.jpg", "finger-010.jpg", "finger-011.jpg", "finger-012.jpg", "finger-013.jpg", "finger-014.jpg", "finger-015.jpg", "finger-016.jpg", "finger-017.jpg", "finger-018.jpg", "finger-019.jpg", "finger-020.jpg", "finger-021.jpg", "finger-022.jpg", "finger-023.jpg", "finger-024.jpg", "finger-025.jpg", "finger-026.jpg", "finger-027.jpg", "finger-028.jpg", "finger-029.jpg", "finger-030.jpg", "finger-031.jpg", "finger-032.jpg", "finger-033.jpg", "finger-034.jpg", "finger-035.jpg", "finger-036.jpg", "finger-037.jpg", "finger-038.jpg", "finger-039.jpg", "finger-040.jpg", "finger-041.jpg", "finger-042.jpg", "finger-043.jpg", "finger-044.jpg", "finger-045.jpg", "finger-046.jpg", "finger-047.jpg", "finger-048.jpg", "finger-049.jpg", "finger-050.jpg", 
+    "flowers-0-05.jpg", "flowers-0-06.jpg", "flowers-0-07.jpg", "flowers-0-08.jpg", "flowers-0-09.jpg", "flowers-0-10.jpg", "flowers-0-11.jpg", "flowers-0-12.jpg", "flowers-0-13.jpg", "flowers-0-14.jpg", "flowers-0-15.jpg", "flowers-0-16.jpg", "flowers-0-17.jpg", "flowers-0-18.jpg", "flowers-0-19.jpg", "flowers-0-20.jpg", "flowers-0-21.jpg", "flowers-0-22.jpg", "flowers-0-23.jpg", "flowers-0-24.jpg", "flowers-0-25.jpg", "flowers-0-26.jpg", "flowers-0-27.jpg", "flowers-0-28.jpg", "flowers-0-29.jpg", "flowers-0-30.jpg", "flowers-0-31.jpg", "flowers-0-32.jpg", "flowers-0-33.jpg", "flowers-0-34.jpg", "flowers-0-35.jpg", "flowers-0-36.jpg", "flowers-0-37.jpg", "flowers-0-38.jpg", "flowers-0-39.jpg", "flowers-0-40.jpg", "flowers-0-41.jpg", "flowers-0-42.jpg", "flowers-0-43.jpg", "flowers-0-44.jpg", "flowers-0-45.jpg", "flowers-0-46.jpg", "flowers-0-47.jpg", "flowers-0-48.jpg", "flowers-0-49.jpg", "flowers-0-50.jpg", "flowers-0-51.jpg", "flowers-0-52.jpg", "flowers-0-53.jpg", 
+    "flowers-b-017.jpg", "flowers-b-018.jpg", "flowers-b-019.jpg", "flowers-b-020.jpg", "flowers-b-021.jpg", "flowers-b-022.jpg", "flowers-b-023.jpg", "flowers-b-024.jpg", "flowers-b-025.jpg", "flowers-b-026.jpg", "flowers-b-027.jpg", "flowers-b-028.jpg", "flowers-b-029.jpg", "flowers-b-030.jpg", "flowers-b-031.jpg", "flowers-b-032.jpg", "flowers-b-033.jpg", "flowers-b-034.jpg", "flowers-b-035.jpg", "flowers-b-036.jpg", "flowers-b-037.jpg", "flowers-b-038.jpg", "flowers-b-039.jpg", "flowers-b-040.jpg", "flowers-b-041.jpg", "flowers-b-042.jpg", "flowers-b-043.jpg", "flowers-b-044.jpg", "flowers-b-045.jpg", "flowers-b-046.jpg", "flowers-b-047.jpg", "flowers-b-048.jpg", "flowers-b-049.jpg", "flowers-b-050.jpg", 
+    "food-0-01.jpg", "food-0-02.jpg", "food-0-03.jpg", "food-0-04.jpg", "food-0-05.jpg", "food-0-06.jpg", "food-0-07.jpg", "food-0-08.jpg", "food-0-09.jpg", "food-0-10.jpg", "food-0-11.jpg", "food-0-12.jpg", "food-0-13.jpg", "food-0-14.jpg", "food-0-15.jpg", "food-0-16.jpg", "food-0-17.jpg", "food-0-18.jpg", "food-0-19.jpg", "food-0-20.jpg", "food-0-21.jpg", "food-0-22.jpg", "food-0-23.jpg", "food-0-24.jpg", "food-0-25.jpg", "food-0-26.jpg", "food-0-27.jpg", "food-0-28.jpg", "food-0-29.jpg", "food-0-51.jpg", "food-0-52.jpg", "food-0-53.jpg", "food-0-54.jpg", "food-0-55.jpg", "food-0-56.jpg", "food-0-57.jpg", "food-0-58.jpg", "food-0-59.jpg", "food-0-60.jpg", "food-0-61.jpg", "food-0-62.jpg", "food-0-63.jpg", "food-0-64.jpg", "food-0-65.jpg", "food-0-66.jpg", "food-0-67.jpg", "food-0-68.jpg", "food-0-69.jpg", "food-0-70.jpg", "food-0-71.jpg", "food-0-72.jpg", "food-0-73.jpg", "food-0-74.jpg", "food-0-75.jpg", "food-0-76.jpg", "food-0-77.jpg", "food-0-78.jpg", "food-0-79.jpg", "food-0-80.jpg", "food-0-81.jpg", "food-0-82.jpg", "food-0-83.jpg", "food-0-84.jpg", "food-0-85.jpg", "food-0-86.jpg", "food-0-87.jpg", "food-0-88.jpg", "food-0-89.jpg", "food-0-90.jpg", "food-0-91.jpg", "food-0-92.jpg", "food-0-93.jpg", "food-0-94.jpg", "food-0-95.jpg", "food-0-96.jpg", "food-0-97.jpg", "food-0-98.jpg", "food-0-99.jpg", 
+    "foods-007.jpg", "foods-008.jpg", "foods-009.jpg", "foods-010.jpg", "foods-011.jpg", "foods-012.jpg", "foods-013.jpg", "foods-014.jpg", "foods-015.jpg", "foods-016.jpg", "foods-017.jpg", "foods-018.jpg", "foods-019.jpg", "foods-020.jpg", "foods-021.jpg", "foods-022.jpg", "foods-023.jpg", "foods-024.jpg", "foods-025.jpg", "foods-026.jpg", "foods-027.jpg", "foods-028.jpg", "foods-029.jpg", "foods-030.jpg", "foods-031.jpg", "foods-032.jpg", "foods-033.jpg", "foods-034.jpg", "foods-035.jpg", "foods-036.jpg", "foods-037.jpg", "foods-038.jpg", "foods-039.jpg", "foods-040.jpg", "foods-041.jpg", "foods-042.jpg", "foods-043.jpg", "foods-044.jpg", "foods-045.jpg", "foods-046.jpg", "foods-047.jpg", "foods-048.jpg", 
+    "gift-0-100.jpg", "gift-0-23.jpg", "gift-0-24.jpg", "gift-0-25.jpg", "gift-0-29.jpg", "gift-0-30.jpg", "gift-0-31.jpg", "gift-0-35.jpg", "gift-0-36.jpg", "gift-0-37.jpg", "gift-0-41.jpg", "gift-0-42.jpg", "gift-0-43.jpg", "gift-0-47.jpg", "gift-0-48.jpg", "gift-0-49.jpg", "gift-0-68.jpg", "gift-0-69.jpg", "gift-0-70.jpg", "gift-0-74.jpg", "gift-0-75.jpg", "gift-0-76.jpg", "gift-0-80.jpg", "gift-0-81.jpg", "gift-0-82.jpg", "gift-0-86.jpg", "gift-0-87.jpg", "gift-0-88.jpg", "gift-0-92.jpg", "gift-0-93.jpg", "gift-0-94.jpg", "gift-0-98.jpg", "gift-0-99.jpg", 
+    "glasses-013.jpg", "glasses-014.jpg", "glasses-015.jpg", "glasses-016.jpg", "glasses-017.jpg", "glasses-018.jpg", "glasses-043.jpg", "glasses-044.jpg", "glasses-045.jpg", "glasses-046.jpg", "glasses-047.jpg", "glasses-048.jpg", "glasses-049.jpg", "glasses-050.jpg", 
+    "green-001.jpg", "green-002.jpg", "green-003.jpg", "green-004.jpg", "green-005.jpg", "green-006.jpg", "green-007.jpg", "green-008.jpg", "green-009.jpg", "green-010.jpg", "green-011.jpg", "green-012.jpg", "green-013.jpg", "green-014.jpg", "green-015.jpg", "green-016.jpg", "green-017.jpg", "green-018.jpg", "green-019.jpg", "green-020.jpg", "green-021.jpg", "green-022.jpg", 
+    "hanabi-0-84.jpg", "hanabi-0-85.jpg", "hanabi-0-86.jpg", "hanabi-0-87.jpg", "hanabi-0-88.jpg", "hanabi-0-89.jpg", "hanabi-0-90.jpg", "hanabi-0-91.jpg", "hanabi-0-92.jpg", "hanabi-0-93.jpg", "hanabi-0-94.jpg", "hanabi-0-95.jpg", "hanabi-0-96.jpg", "hanabi-0-97.jpg", 
+    "hands-001.jpg", "hands-002.jpg", "hands-003.jpg", "hands-004.jpg", "hands-035.jpg", "hands-036.jpg", "hands-037.jpg", "hands-038.jpg", "hands-039.jpg", "hands-040.jpg", "hands-041.jpg", "hands-042.jpg", "hands-043.jpg", "hands-044.jpg", "hands-045.jpg", "hands-046.jpg", "hands-047.jpg", "hands-048.jpg", "hands-049.jpg", "hands-050.jpg", 
+    "hawaii-0-01.jpg", "hawaii-0-02.jpg", "hawaii-0-03.jpg", "hawaii-0-04.jpg", "hawaii-0-05.jpg", "hawaii-0-06.jpg", "hawaii-0-07.jpg", "hawaii-0-08.jpg", "hawaii-0-18.jpg", "hawaii-0-19.jpg", "hawaii-0-20.jpg", "hawaii-0-24.jpg", "hawaii-0-25.jpg", "hawaii-0-26.jpg", "hawaii-0-30.jpg", "hawaii-0-31.jpg", "hawaii-0-32.jpg", "hawaii-0-36.jpg", "hawaii-0-37.jpg", "hawaii-0-38.jpg", "hawaii-0-42.jpg", "hawaii-0-43.jpg", "hawaii-0-44.jpg", "hawaii-0-48.jpg", "hawaii-0-49.jpg", "hawaii-0-50.jpg", "hawaii-0-54.jpg", "hawaii-0-55.jpg", "hawaii-0-56.jpg", "hawaii-0-60.jpg", "hawaii-0-61.jpg", "hawaii-0-62.jpg", "hawaii-0-77.jpg", "hawaii-0-78.jpg", "hawaii-0-79.jpg", "hawaii-0-80.jpg", "hawaii-0-83.jpg", "hawaii-0-84.jpg", "hawaii-0-85.jpg", "hawaii-0-86.jpg", "hawaii-0-89.jpg", "hawaii-0-90.jpg", "hawaii-0-91.jpg", "hawaii-0-92.jpg", 
+    "heartph-003.jpg", "heartph-004.jpg", "heartph-005.jpg", "heartph-006.jpg", "heartph-007.jpg", "heartph-008.jpg", "heartph-009.jpg", "heartph-010.jpg", "heartph-011.jpg", "heartph-012.jpg", "heartph-013.jpg", "heartph-014.jpg", "heartph-015.jpg", "heartph-016.jpg"
+];
+        const baseUrl = "https://life-supporter.jp/sp/hxySQ4ff/VjDWurLR/images/g6s/";
 
-    function setRandomBanner() {
-        const randomIndex = Math.floor(Math.random() * images.length);
-        bannerImg.style.opacity = 0;
-        setTimeout(() => {
-            bannerImg.src = baseUrl + images[randomIndex];
-            bannerImg.onload = () => bannerImg.style.opacity = 1;
-        }, 300);
-    }
-
-    function loadQuiz() {
-        isAnswered = false;
-        nextBtn.classList.add('hidden');
-        resultEl.innerText = "";
-        setRandomBanner();
-
-        const currentQuiz = quizzes[currentQuizIndex];
-        questionEl.innerText = `Q${currentQuizIndex + 1}. ${currentQuiz.question}`;
-        
-        choicesEl.innerHTML = "";
-        const choices = generateChoices(currentQuiz.answer);
-        
-        choices.forEach(choice => {
-            const li = document.createElement('li');
-            li.innerText = choice;
-            li.onclick = () => checkAnswer(li, choice, currentQuiz.answer);
-            choicesEl.appendChild(li);
-        });
-    }
-
-    function generateChoices(correctAnswer) {
-        let choices = [correctAnswer];
-        while (choices.length < 4) {
-            const randomQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-            if (!choices.includes(randomQuiz.answer)) {
-                choices.push(randomQuiz.answer);
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
         }
-        return choices.sort(() => Math.random() - 0.5);
-    }
 
-    function checkAnswer(li, selected, correct) {
-        if (isAnswered) return;
-        isAnswered = true;
+        // ★ 問題と同時に画像を切り替える関数 ★
+        function loadQuiz() {
+            isAnswered = false;
+            const currentQuiz = quizzes[currentQuizIndex];
+            questionEl.innerText = currentQuiz.question;
+            choicesEl.innerHTML = '';
+            resultEl.innerText = '';
+            
+            // --- 画像のランダム切り替え処理 ---
+            // 1. 一度透明にする
+            const imgElement = document.getElementById('randomBanner');
+            imgElement.style.opacity = 0; 
 
-        if (selected === correct) {
-            li.classList.add('correct');
-            resultEl.innerText = "正解です！ お見事！";
-            score++;
-        } else {
-            li.classList.add('incorrect');
-            resultEl.innerText = `残念。正解は「${correct}」でした。`;
-            // 正解の選択肢も強調表示
-            Array.from(choicesEl.children).forEach(child => {
-                if (child.innerText === correct) child.classList.add('correct');
+            // 2. ランダムな画像を選択
+            const selectedImage = images[Math.floor(Math.random() * images.length)];
+
+            // 3. 画像がロードされたらフェードインさせる
+            imgElement.onload = function() {
+                this.style.opacity = 1; // フェードイン
+            };
+            // 先にsrcを設定（これにより onload イベントがトリガーされる）
+            imgElement.src = baseUrl + selectedImage;
+
+
+            // --- 選択肢（4個）の生成処理 ---
+            const otherAnswers = quizzes
+                .filter((_, index) => index !== currentQuizIndex)
+                .map(q => q.answer);
+            
+            shuffle(otherAnswers);
+            let options = [currentQuiz.answer, otherAnswers[0], otherAnswers[1], otherAnswers[2]];
+            shuffle(options);
+
+            options.forEach(choice => {
+                const li = document.createElement('li');
+                li.innerText = choice;
+                li.onclick = () => selectChoice(li);
+                choicesEl.appendChild(li);
             });
+            nextBtn.classList.add('hidden');
         }
-        nextBtn.classList.remove('hidden');
-    }
 
-    nextBtn.onclick = () => {
-        currentQuizIndex++;
-        if (currentQuizIndex < quizzes.length) {
-            loadQuiz();
-        } else {
-            showFinalResult();
+        function selectChoice(selectedLi) {
+            if (isAnswered) return;
+            isAnswered = true;
+            const currentQuiz = quizzes[currentQuizIndex];
+            if (selectedLi.innerText === currentQuiz.answer) {
+                selectedLi.classList.add('correct');
+                resultEl.innerText = '正解です！';
+                score++;
+            } else {
+                selectedLi.classList.add('incorrect');
+                resultEl.innerText = `不正解... 正解は「${currentQuiz.answer}」`;
+                Array.from(choicesEl.children).forEach(li => {
+                    if (li.innerText === currentQuiz.answer) li.classList.add('correct');
+                });
+            }
+            Array.from(choicesEl.children).forEach(li => li.style.pointerEvents = 'none');
+            nextBtn.classList.remove('hidden');
         }
-    };
 
-    function showFinalResult() {
-        questionEl.innerText = "クイズ終了！";
-        choicesEl.innerHTML = "";
-        nextBtn.classList.add('hidden');
-        resultEl.innerHTML = `全${quizzes.length}問中、${score}問正解でした！<br><br>`;
-        
-        const restartBtn = document.createElement('button');
-        restartBtn.id = "restart-btn";
-        restartBtn.innerText = "もう一度挑戦する";
-        restartBtn.onclick = () => location.reload();
-        resultEl.appendChild(restartBtn);
-    }
+        // ★ 「次の問題」ボタンの処理 ★
+        function nextQuiz() {
+            currentQuizIndex++;
+            if (currentQuizIndex < quizzes.length) {
+                loadQuiz(); // 画像切り替えを含む問題ロードを実行
+            } else {
+                // クイズ終了時の処理（画像コンテナを非表示にする例）
+                bannerContainerEl.style.display = 'none'; 
+                document.getElementById('quiz').innerHTML = `<h2>終了！${score}点でした</h2><button id="restart-btn" onclick="location.reload()">もう一度挑戦する</button>`;
+            }
+        }
 
-    loadQuiz();
-</script>
+        nextBtn.onclick = nextQuiz;
+        shuffle(quizzes);
+        loadQuiz(); // 初回ロード
+    </script>
+<span style="font-size: 18px;"><b>今回のアプリは如何だったでしょうか？他にも使えるアプリ、脳トレができるゲームや趣味に俳句、和歌などが利用できるサイトをご案内します。また大事な記録をサーバーに残せるサイトで、何かあった時に情報開示も指定できるサイトです。スマホのID、PWを記録しておくと安心です。</b></span><p><br></p>
+<p><span style="font-size: 18px;"><b></b></span>
 
-</body>
-</html>
+<img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012085.jpg" style="display: block; margin: auto;"><br></p><p><br></p>
+<span style="font-size: 24px;"><div style="text-align: center;"><b>以下より体験版をご確認ください。</b></div>
+</span><p style="text-align: center; "><img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012100.jpg" style="width: 200px;"></p>
+<div style="text-align: center;"><a href="https://life-supporter.jp/lp/HRSuykFf" style="background-color: rgb(255, 255, 255); font-family: &quot;Hiragino Kaku Gothic Pro&quot;, &quot;Noto Sans JP&quot;, sans-serif;"><span style="font-size: 20px; color: rgb(0, 0, 255);">https://life-supporter.jp/lp/HRSuykFf</span></a></div>
+<p><br></p>
