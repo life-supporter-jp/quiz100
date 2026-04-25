@@ -37,7 +37,7 @@
         .random-banner-container {
             text-align: center;
             margin: 15px auto;
-            width: 80%; /* 画像を見やすく調整 */
+            width: 80%;
             min-height: 150px;
             background-color: #f9f9f9;
             border-radius: 8px;
@@ -45,6 +45,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            border: 1px solid #eee;
         }
         #randomBanner {
             max-width: 100%;
@@ -84,7 +85,7 @@
         /* --- 選択肢（4択対応） --- */
         #choices { 
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2列に並べる */
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             list-style: none; 
             padding: 0; 
@@ -121,19 +122,17 @@
             font-weight: bold;
             cursor: pointer;
             margin-top: 20px;
-            transition: background 0.3s;
         }
-        .btn:hover { background-color: #357abd; }
         .hidden { display: none !important; }
 
         #result { font-size: 1.3em; font-weight: bold; margin-top: 15px; min-height: 1.5em; }
 
-        /* --- フッターエリア --- */
+        /* --- フッター --- */
         .footer-msg { font-size: 18px; font-weight: bold; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .qr-area { text-align: center; margin-top: 40px; padding-bottom: 50px; }
         
         @media (max-width: 600px) {
-            #choices { grid-template-columns: 1fr; } /* スマホでは1列 */
+            #choices { grid-template-columns: 1fr; }
             .random-banner-container { width: 95%; }
         }
     </style>
@@ -142,7 +141,7 @@
 
 <div class="wrap">
     <div class="banner-container">
-        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg" alt="Header">
+        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg">
     </div>
 
     <div class="quiz-card">
@@ -167,16 +166,16 @@
     </div>
 
     <div class="banner-container" style="margin-top:20px;">
-        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012085.jpg" alt="Footer Banner">
+        <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012085.jpg">
     </div>
 
     <div class="qr-area">
         <div style="font-size: 22px; font-weight: bold; margin-bottom: 20px;">以下より体験版をご確認ください。</div>
         <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-            <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012100.jpg" alt="体験版QRコード" style="width: 200px; height: auto;">
+            <img src="https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012100.jpg" style="width: 200px;">
         </div>
         <div style="margin-top: 10px;">
-            <a href="https://life-supporter.jp/lp/HRSuykFf" style="color: #0000FF; font-size: 20px; text-decoration: underline; font-weight: bold; word-break: break-all;">
+            <a href="https://life-supporter.jp/lp/HRSuykFf" style="color: #0000FF; font-size: 20px; text-decoration: underline; font-weight: bold;">
                 https://life-supporter.jp/lp/HRSuykFf
             </a>
         </div>
@@ -184,7 +183,6 @@
 </div>
 
 <script>
-    // --- クイズデータ（4つの回答に対応） ---
     const quizzes = [
         { question: "1年中、ほぼ毎日働いているのに、一度も文句を言わないものは？", choices: ["カレンダー", "時計", "冷蔵庫", "電柱"], answer: "カレンダー" },
         { question: "叩けば叩くほど、大きな音で応えてくれる楽器は何？", choices: ["ピアノ", "たいこ", "笛", "バイオリン"], answer: "たいこ" },
@@ -196,12 +194,11 @@
         { question: "いつも何かを教えてくれるけれど、声を出さない、紙でできたものは？", choices: ["手紙", "本", "ノート", "新聞"], answer: "本" }
     ];
 
-    // --- ランダム画像リスト ---
+    // 指定された画像名
     const images = [
         "0-38.jpg", "0-39.jpg", "0-49.jpg", "0-50.jpg", "0-55.jpg", 
         "056.jpg", "037.jpg", "038.jpg", "650.jpg", "651.jpg", "652.jpg"
     ];
-    // ベースURLが正しいかご確認ください（末尾の/の有無など）
     const imgBaseUrl = "https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/";
 
     let currentIdx = 0;
@@ -221,17 +218,14 @@
         nextBtn.classList.add('hidden');
         choicesEl.innerHTML = '';
 
-        // 画像のランダム表示ロジック修正
-        bannerImg.style.opacity = 0; // 一旦消す
+        // 画像表示の更新
+        bannerImg.style.opacity = 0;
         const randomImgName = images[Math.floor(Math.random() * images.length)];
         bannerImg.src = imgBaseUrl + randomImgName;
         
-        // 画像読み込み完了後にフェードイン
         bannerImg.onload = () => { bannerImg.style.opacity = 1; };
-        // 万が一画像がない場合の処理
-        bannerImg.onerror = () => { bannerImg.src = "https://life-supporter.jp/sp/hxySQ4ff/ct5NJq8Z/images/XS012099.jpg"; bannerImg.style.opacity = 1; };
+        bannerImg.onerror = () => { bannerImg.style.display = "none"; }; // 画像がない場合は非表示
 
-        // 選択肢の生成
         quiz.choices.forEach(choice => {
             const li = document.createElement('li');
             li.textContent = choice;
@@ -250,9 +244,7 @@
             resultEl.innerHTML = '<span style="color:#48bb78">正解です！</span>';
         } else {
             element.classList.add('incorrect');
-            resultEl.innerHTML = `<span style="color:#f56565">残念！ 正解は「${correct}」でした。</span>`;
-            
-            // 正解の選択肢も強調表示
+            resultEl.innerHTML = `<span style="color:#f56565">残念！ 正解は「${correct}」です。</span>`;
             Array.from(choicesEl.children).forEach(li => {
                 if(li.textContent === correct) li.classList.add('correct');
             });
@@ -265,7 +257,7 @@
         if (currentIdx < quizzes.length) {
             loadQuiz();
         } else {
-            questionEl.textContent = "全問終了！お疲れ様でした！";
+            questionEl.textContent = "全問終了！";
             choicesEl.innerHTML = '';
             nextBtn.classList.add('hidden');
             document.getElementById('restart-btn').classList.remove('hidden');
@@ -278,7 +270,6 @@
         loadQuiz();
     };
 
-    // 起動
     loadQuiz();
 </script>
 </body>
